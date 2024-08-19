@@ -80,7 +80,7 @@ cursor: pointer;
 
 export const Text = styled.div`
   text-align: center;
-  color: ${(props) => props.color || '#6487E2'};
+  color: ${(props) => props.color || '#A49EE7'};
   font-size: 12px;
   font-family: 'Pretendard', sans-serif;
   font-weight: 600;

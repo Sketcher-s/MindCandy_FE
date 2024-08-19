@@ -34,7 +34,8 @@ function PrepareDraw() {
       <InnerContainer>
         <InnerWrapper>
           <StyledPrepareDraw1 />
-          <Text>HTP 테스트를 위한 참고 사항</Text>
+          <Text>검사 시작 전 안내사항</Text>
+          <SubText>정확한 검사를 위해 다음 안내 사항들을 꼭 지켜주세요!</SubText>
           <NoteContainer>
             <SubContainer>
               <TextContainer>
@@ -50,7 +51,7 @@ function PrepareDraw() {
               <TextContainer>
                 <Check />
               </TextContainer>
-                <NoteText>작은화면(모바일)로 그림을 그리면 검사가 원활하게 이뤄지지 않을 수도 있어요.</NoteText>
+                <NoteText>아동이 정서적으로 안정된 상태에서 테스트를 진행하도록 해주세요.</NoteText>
             </SubContainer>
             <SubContainer>
               <TextContainer>
@@ -58,23 +59,16 @@ function PrepareDraw() {
               </TextContainer>
                 <NoteText>정확한 검사를 위해 예시 그림은 제공되지 않습니다.</NoteText>
             </SubContainer>
-            <SubContainer>
-              <TextContainer>
-                <Check />
-              </TextContainer>
-                <NoteText>
-                  위 사항을 준수하지 않을 경우 테스트의 진행이 제한되거나
-                  <br />
-                  결과가 부정확할 수 있습니다.
-                </NoteText>
-            </SubContainer>
           </NoteContainer>
+          <SubContainer>
+                <NoteText>각자 상황에 맞는 테스트 방식을 선택해주세요.</NoteText>
+            </SubContainer>
           <ButtonBox>
             <PicButtonBox onClick={handlePicClick}>
-              <PicButton>사진 첨부하기</PicButton>
+              <PicButton>종이 그림 검사</PicButton>
             </PicButtonBox>
             <DraButtonBox onClick={handleDrawClick}>
-              <DraButton>그림 그리기</DraButton>
+              <DraButton>그림판 검사</DraButton>
             </DraButtonBox>
           </ButtonBox>
         </InnerWrapper>
@@ -104,7 +98,7 @@ const OuterContainer = styled.div`
 
 const InnerContainer = styled.div`
   width: 40.25rem; //644px;
-  //height: 32.4375rem; //519px;
+  height: 29.813rem; //477px;
   padding-top: 2.5rem; //40px;
   padding-bottom: 2.5rem; //40px;
   flex-direction: column;
@@ -129,7 +123,7 @@ const InnerWrapper = styled.div`
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  gap: 1.5rem; //30px;
+  //gap: 1.5rem; //30px;
   ${theme.media.mobile`
   justify-content: flex-start;
   align-items: center;
@@ -166,6 +160,19 @@ const TextContainer = styled.div`
 const Text = styled.div`
   color: #27282b;
   font-size: 1.625rem; //26px;
+  font-family: Pretendard-Regular;
+  font-weight: 700;
+  line-height: 2.4375rem; //39px;
+  word-wrap: break-word;
+
+  ${theme.media.mobile`
+  font-size: 1.375rem;
+  `}
+`;
+
+const SubText = styled.div`
+  color: #27282b;
+  font-size: 0.875rem; //14px;
   font-family: Pretendard-Regular;
   font-weight: 700;
   line-height: 2.4375rem; //39px;
@@ -239,7 +246,7 @@ const PicButtonBox = styled.div`
   padding: 0 1.25rem; //0 20px;
   background: white;
   border-radius: 0.25rem; //4px;
-  border: 0.0625rem solid #6487e2;
+  border: 0.0625rem solid #9386E0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -258,7 +265,7 @@ const PicButtonBox = styled.div`
 const PicButton = styled.button`
   width: 10rem; //120px;
   text-align: center;
-  color: #6487e2;
+  color: #9386E0;
   font-size: 1rem; //16px;
   font-family: Pretendard-Regular;
   font-weight: 700;
@@ -287,7 +294,7 @@ const DraButtonBox = styled.div`
   width: 10rem; //160px;
   height: 2.75rem; //44px;
   padding: 0 1.25rem; //0 20px;
-  background: #6487e2;
+  background: #9386E0;
   border-radius: 0.25rem; //4px;
   display: flex;
   justify-content: center;
