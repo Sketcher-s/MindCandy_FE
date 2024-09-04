@@ -148,7 +148,7 @@ const Login = () => {
           >
             <div>로그인</div>
           </Button>
-          <Button width="100%" fixed={true} color="#6487e2" onClick={moveToRegister} type="button">
+          <Button width="100%" fixed={true} color="#A49EE7" onClick={moveToRegister} type="button">
             <div>회원가입</div>
           </Button>
         </ButtonWrapper>

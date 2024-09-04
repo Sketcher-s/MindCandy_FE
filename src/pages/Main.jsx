@@ -7,6 +7,7 @@ import { ReactComponent as Main2 } from  '../assets/Main/Main2.svg';
 import { ReactComponent as Main3 } from  '../assets/Main/Main3.svg';
 import { theme } from '../theme';
 import { ButtonWrapper } from '../components/Login/LoginStyle';
+import mainPicture1 from "../assets/Main/mainPicture1.svg";
 
 const StyledMain1 = styled(Main1)`
   width: ${props => props.width || '90%'};
@@ -16,13 +17,14 @@ const StyledMain1 = styled(Main1)`
     margin-left:1rem;
   `}
 `;
-const StyledMain2 = styled(Main2)`
-  width: ${props => props.width || '100%'};
-  height: ${props => props.height || 'auto'};
-`;
+
 const StyledMain3 = styled(Main3)`
   width: ${props => props.width || '100%'};
   height: ${props => props.height || 'auto'};
+`;
+
+const StyledMain = styled.img`
+  width: 100%;
 `;
  
 
@@ -72,7 +74,7 @@ function Main() {
       </InspectionSection>
         <Section>
           <MindSection>
-            <ImgBox><StyledMain2/></ImgBox>
+            <ImgBox><StyledMain src={mainPicture1}/></ImgBox>
             <MindContent>
                 <MindTitle>아이의 마음, <Highlighted>그림</Highlighted>으로 알아보아요</MindTitle>
                 <MindDescription>HTP 그림 심리 검사를 통해<br/> 
@@ -82,8 +84,8 @@ function Main() {
           <ResultsSection>
             <ResultsContent>
               <ResultsTitle>HTP 그림 심리 검사란?</ResultsTitle>
-              <ResultsDescription>사용자가 집, 나무, 사람을 그리는 것을 통해 <br/>그들의 심리 상태를 분석하는 방법입니다.</ResultsDescription>
-              <ResultsDescription>사용자의 그림을 통해 형식 분석과 내용 분석을 진행하여, <br/>그림의 크기, 위치, 세밀함 등 다양한 요소를 평가하고, <br/>이를 통해 사용자의 자신감, 감정 상태, 대인 관계 태도 등을 <br/>파악할 수 있습니다.</ResultsDescription>
+              <ResultsDescription>아동이 그린 집, 나무, 남자와 여자를 바탕으로 <br/>심리 상태를 분석하는 방법입니다.</ResultsDescription>
+              <ResultsDescription>아동의 그림을 통해 형식 분석과 내용 분석을 진행하고, <br/>그림의 크기, 위치, 세밀함 등 다양한 요소를 평가합니다. <br/>HTP 그림 심리 검사를 통해 <br/>아동의 자신감, 감정 상태, 대인 관계 태도 등을 파악할 수 있습니다.</ResultsDescription>
             </ResultsContent>
             <ImgBox><StyledMain3/></ImgBox>
           </ResultsSection>
@@ -137,7 +139,7 @@ const InspectionTitle = styled.h2`
   font-size: 1.125rem;  // 18px
   font-weight: 700;
   line-height: 1.6875rem;  // 27px
-  color: #6487E2;
+  color: #A49EE7;
   ${theme.media.mobile`
     font-size: 1.375rem;
     text-align: center;
@@ -159,7 +161,7 @@ const DrawButton = styled.button`
   width: 10rem;
   height: 2.75rem;
   border-radius: 0.25rem;
-  background: #6487E2;
+  background: #9386E0;
   color: white;
   border:none;
   font-weight:700;
@@ -213,7 +215,7 @@ const MindTitle = styled.h2`
 `;
 
 const Highlighted = styled.span`
-  color: #6487E2;
+  color: #A49EE7;
 `;
 
 const MindDescription = styled.p`

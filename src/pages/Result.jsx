@@ -4,6 +4,10 @@ import { theme } from '../theme';
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation ,useNavigate} from 'react-router-dom';
+import home from "../assets/Result/Home.svg";
+import tree from "../assets/Result/tree.svg";
+import man from "../assets/Result/Man.svg";
+import woman from "../assets/Result/Woman.svg";
 
 function Result() {
   const location = useLocation();
@@ -146,7 +150,15 @@ function Result() {
     <div>
       <Wrapper>
         <DrawingSection>
-        <ResultSection>
+          <TopContainer>
+            <LookContainer><LookImg src={home}/>집</LookContainer>
+            <LookContainer><LookImg src={tree}/>나무</LookContainer>
+            <LookContainer><LookImg src={man}/>남자 사람</LookContainer>
+            <LookContainer><LookImg src={woman}/>여자 사람</LookContainer>
+          </TopContainer>
+            <DrawResult>
+              {image && <StyledImage src={image} alt="Drawing for Analysis" />}
+            </DrawResult>
               <TitleSection>
                 <TitleInput
                     type="text"
@@ -156,18 +168,11 @@ function Result() {
                     readOnly={!isEditing}
                     isError={error.length > 0}
                 />
-                <SaveButton onClick={!isEditing ? handleEdit : handleSave}
-              >
-                {!isEditing ? "수정" : "저장"}
-                
-              </SaveButton>
               </TitleSection>
               {error && <ErrorMessage>{error}</ErrorMessage>}
-                <DrawResult>
-                  {image && <StyledImage src={image} alt="Drawing for Analysis" />}
-                </DrawResult>
+                
                 <AnalysisResult>{analysisResult}</AnalysisResult>
-            </ResultSection>
+      
           <ResultContent/>
           <ButtonBox>
         <MainButtonBox >
@@ -199,9 +204,11 @@ const Wrapper = styled.div`
 `;
 
 const DrawingSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 70%; // 기본 화면에서의 너비
   height: auto;
-  justify-content: center;
   background: white;
   border-radius: 0.8rem;
   padding: 1.9rem 3.2rem; // 데스크탑에서의 패딩
@@ -212,11 +219,12 @@ const DrawingSection = styled.div`
 `;
 const TitleSection = styled.div`
   display: flex;
-`;
-
-const ResultSection = styled.div`
   width: 100%;
 `;
+
+// const ResultSection = styled.div`
+//   width: 100%;
+// `;
 
 const TitleInput = styled.input`
   width: 90%;
@@ -310,7 +318,7 @@ const MyPageButtonBox = styled.div`
   height: 2.75rem;
   padding: 0 1.25rem;
   border-radius: 0.25rem;
-  border: 0.0625rem solid #6487e2;
+  border: 0.0625rem solid #9386E0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -323,7 +331,7 @@ const MyPageButtonBox = styled.div`
 const MyPageButton = styled.div`
   width: 7.5rem;
   text-align: center;
-  color: #6487e2;
+  color: #9386E0;
   font-size: 0.9rem;
   font-family: Pretendard-Regular;
   font-weight: 700;
@@ -350,13 +358,37 @@ const MainButtonBox = styled.div`
   width: 10rem;
   height: 2.75rem;
   padding: 0 1.25rem;
-  background: #6487e2;
+  background: #9386E0;
   border-radius: 0.25rem;
-  border: 0.0625rem solid #6487e2;
+  border: 0.0625rem solid #9386E0;
   display: flex;
   justify-content: center;
   align-items: center;
   ${theme.media.mobile`
   width:80%;
   `}
+`;
+
+const TopContainer = styled.div`
+  display: flex;
+  width: 40%;
+  gap: 10%;
+  ${theme.media.mobile`
+      
+  `}
+`;
+
+const LookContainer = styled.div`
+  display: flex;
+  width: auto;
+  padding: 2px 12px 2px 6px;
+  background-color: #DDDDF7;
+  border-radius: 40px;
+  align-items: center;
+  font-size: 16px;
+  
+`;
+
+const LookImg = styled.img`
+  
 `;

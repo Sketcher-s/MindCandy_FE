@@ -38,17 +38,17 @@ const NavbarMember = ({toggleSidebar}) => {
             <MindCandyLogo/>
           </LogoContainer>
           {isMobile ? (
-            <FiMenu size="20" color="#5678BE" onClick={toggleSidebar}/>
+            <FiMenu size="20" color="#A49EE7" onClick={toggleSidebar}/>
           ) : (
             <HeaderButtons>
-            <Button width={62} background="#6487E2" border="1px #6487E2 solid" noMember onClick={moveToReady}>
+            <Button width={62} background="#9386E0" border="1px #9386E0 solid" noMember onClick={moveToReady}>
               <Text color="white">검사하기</Text>
             </Button>
-            <Button width={72} background="white" border="1px #6487E2 solid" noMember onClick={moveToMy}>
-              <Text color="#6487E2">마이페이지</Text>
+            <Button width={72} background="white" border="1px #9386E0 solid" noMember onClick={moveToMy}>
+              <Text color="#9386E0">마이페이지</Text>
             </Button>
             <Button width={62} background="white" noMember onClick={handleLogout}> 
-              <Text color="#6487E2">로그아웃</Text>
+              <Text color="#9386E0">로그아웃</Text>
             </Button>
           </HeaderButtons>
           )}

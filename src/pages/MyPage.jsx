@@ -8,6 +8,7 @@ import Modal from '../components/Modal';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { LoginState } from '../recoil/recoilState';
+import noneData from "../assets/mypage/noneData.svg";
 
 // 주요 컨테이너
 const MyPageContainer = styled.div`
@@ -163,13 +164,13 @@ export const Divider = styled.div`
 `;
 
 // 섹션 타이틀
-const SectionTitle = styled.div`
-  color: #6487E2;
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1.5rem;
-  word-wrap: break-word;
-`;
+// const SectionTitle = styled.div`
+//   color: #6487E2;
+//   font-size: 1rem;
+//   font-weight: 700;
+//   line-height: 1.5rem;
+//   word-wrap: break-word;
+// `;
 
 // 목록 컨테이너 -> 검사 일기 포함
 const ListContainer = styled.div`
@@ -185,6 +186,7 @@ const ListWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  align-items: center; // 데이터 없을때 이미지 가운데 정렬
   gap: 2rem;
   overflow: auto;
   height: 100%;
@@ -200,7 +202,7 @@ const ListWrapper = styled.div`
   }
   &::-webkit-scrollbar-thumb {
     border-radius: 0.125rem;
-    background-color: #A7A9B0;};
+    background-color: #A7A9B0;
   }
 `;
 
@@ -385,7 +387,6 @@ const MyPage = () => {
             </ProContainer>
             <Divider />
             <ListContainer>
-              <SectionTitle>검사 일기</SectionTitle>
               <ListWrapper ref={listRef}>
               {sortedData.map((item, index) => (
               <EntryContainer key={index} onClick={() => moveToList(item.id, item.title)}>
@@ -393,7 +394,7 @@ const MyPage = () => {
                 <EntryDate>{formatDate(item.createdAt)}</EntryDate>
               </EntryContainer>
               ))}
-              {sortedData?.length === 0 && <BeforeList>검사를 진행해보세요!</BeforeList>}
+              {sortedData?.length === 0 && <BeforeList src={noneData}/>}
               </ListWrapper>
             </ListContainer>
           </ContentContainer>
@@ -411,8 +412,9 @@ const UserInfo = styled.div`
   flex-direction: column;
 `;
 
-const BeforeList = styled(EntryText)`
-  text-align: center;
+const BeforeList = styled.img`
+  display: flex;
+  width: 80%;
 `
 
 // 회원탈퇴

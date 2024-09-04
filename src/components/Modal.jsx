@@ -77,7 +77,7 @@ const Button = styled.button`
   height: 2.75rem; // 44px to rem
   padding-left: 1.25rem; // 20px to rem
   padding-right: 1.25rem; // 20px to rem
-  background: #6487E2;
+  background: #9386E0;
   border-radius: 0.25rem; // 4px to rem
   justify-content: center;
   border: none;

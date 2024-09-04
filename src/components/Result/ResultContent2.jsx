@@ -69,7 +69,20 @@ function ResultContent() {
         <Resultcontent>
           <Content>
         <DetailsSection>
-          <SectionContent>전반적으로 당신은 사회적응상태나 정서면에서 안정적입니다. 외부환경과는 긍정적인 상호작용을 하고 관계를 맺고 있는 것으로 보입니다. 정신 생활, 특히 공상적인 부분이 지극히 평범한 편입니다. 타인을 의식하며 자신의 좋은 모습만 보이고 싶습니다. 평범한 가정 입니다. 태도나 생각이 거리낌없고 개방적입니다. 애정을 쏟거나 의존하고 싶고 보호하고 싶어하는 대상이 있습니다. 관심을 쏟아야할 존재가 있습니다. 주변에 처리해야 할 일들이 많아 스트레스를 받고 있습니다. 사람과의 관계에 있어서는 신중하게 다가갑니다. 자신에게 주어진 일이 있다면 누구보다도 책임의식을 갖고 일하는 사람입니다. 근심이나 스트레스가 존재합니다.</SectionContent>
+          <SectionTitle>집</SectionTitle>
+          <SectionContent>{results?.home}</SectionContent>
+        </DetailsSection>
+        <DetailsSection>
+          <SectionTitle>나무</SectionTitle>
+          <SectionContent>{results?.tree}</SectionContent>
+        </DetailsSection>
+        <DetailsSection>
+          <SectionTitle>사람</SectionTitle>
+          <SectionContent>{results?.person}</SectionContent>
+        </DetailsSection>
+        <DetailsSection>
+          <SectionTitle>종합</SectionTitle>
+          <SectionContent>{results?.summary}</SectionContent>
         </DetailsSection>
       </Content>
       
