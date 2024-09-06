@@ -51,7 +51,7 @@ function Main() {
   }, []);
   function handleDrawClick() {
     if (isLoggedIn) {
-      Navigate('/preparedraw'); 
+      Navigate('/preparePage'); 
     } else {
       setIsModalOpen(true);
     }

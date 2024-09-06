@@ -71,16 +71,7 @@ export default function Loading() {
     <TexDiv>
     <Text>검사 결과를 기다리고 있어요!</Text>
     </TexDiv>
-    {/* <ImageData>
-    </ImageData> */}
-    {/* <DrawingArea>
-    </DrawingArea> */}
     <CanvasContainer>
-  {imageData && (
-    <ImageData sizeW={imageWidth} sizeH={imageHeight}>
-      <Img id="loadedImage" src={imageData} sizeW={imageWidth} sizeH={imageHeight}/>
-    </ImageData>
-  )}
   </CanvasContainer>
     </TContainer>
 
@@ -118,19 +109,6 @@ const OutContainer = styled.div`
   //background: #f3f3f6;
   position: relative;
   overflow: hidden;
-`;
-
-const DrawingArea = styled.div`
-  margin-top: 5rem;
-  width: 20rem;
-  height: 20rem;
-  display: flex;
-  // flex-direction: row;
-
-  ${theme.media.mobile`
-  width: 18.625rem;
-  height: 23.375rem;
-`}
 `;
 
 const TContainer = styled.div`
