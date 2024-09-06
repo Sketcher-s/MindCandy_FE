@@ -198,7 +198,7 @@ const Sidebar = () => {
           
           <Divider />
           <LinkContainer>
-            <MoveBtn color="#6487E2" onClick={moveToReady}>검사하기</MoveBtn>
+            <MoveBtn color="#A49EE7" onClick={moveToReady}>검사하기</MoveBtn>
             <MoveBtn onClick={moveToMy}>마이페이지</MoveBtn>
             <MoveBtn onClick={handleLogout}>로그아웃</MoveBtn>
           </LinkContainer>

@@ -111,8 +111,7 @@ function ResultTitle() {
   
     return (
         <div>
-            <ResultSection>
-                <TitleInput
+            <TitleInput
                     type="text"
                     value={title}
                     onChange={handleTitleChange}
@@ -132,16 +131,15 @@ function ResultTitle() {
                     )}
                 </DrawResult>
                 <AnalysisResult>{analysisResult}</AnalysisResult>
-            </ResultSection>
         </div>
     );
 }
 
 export default ResultTitle;
 
-const ResultSection = styled.div`
-  width: 100%;
-`;
+// const ResultSection = styled.div`
+//   width: 100%;
+// `;
 
 const TitleInput = styled.input`
   width: 100%;

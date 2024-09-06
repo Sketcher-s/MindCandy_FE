@@ -94,7 +94,7 @@ export const InputContainer = styled.div`
 export const InputField = styled.div`
   width: 100%;
   border-radius: 4px;
-  border:  ${(props) => (props.isError ? "1px solid #ff8888" : props.isFocused ? "1px solid #6487E2" : "1px solid #e0e1e9")};
+  border:  ${(props) => (props.isError ? "1px solid #ff8888" : props.isFocused ? "1px solid #A49EE7" : "1px solid #e0e1e9")};
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -126,7 +126,8 @@ export const InputValue = styled.input`
   font-weight: 600;
   line-height: 1.5rem;
   padding: 0.75rem 1.25rem;
-  wordwrap: 'break-word';
+  /* wordwrap: 'break-word'; */
+  border-radius: 4px;
 
   ${theme.media.mobile`
   font-size: 0.7rem;
@@ -194,7 +195,7 @@ export const Button = styled.button`
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  background-color: ${(props) => props.fixed ? "white" : props.back ? "#6487E2" : "#C1D1F2"};
+  background-color: ${(props) => props.fixed ? "white" : props.back ? "#A49EE7" : "#DDDDF7"};
   border: none;
   outline: none;
 
@@ -234,20 +235,20 @@ export const ErrorText = styled.div`
 // NavbarStyle에서 가져옴
 export const CheckButton = styled.button`
 width: ${(props) => props.width};
-  padding: ;
+  /* padding: ; */
   border-radius: 0.25rem;
   display: flex;
   justify-content: center;
   align-items: center;
   background: ${(props) => props.background};
-  border: ${(props) => (props.isError ? "1px solid #C1D1F2": "1px solid #6487E2")};
+  border: ${(props) => (props.isError ? "1px solid #DDDDF7": "1px solid #A49EE7")};
   margin-right: 0.5rem;
 `;
 
 // NavbarStyle에서 가져옴
 export const Text = styled.div`
   text-align: center;
-  color: ${(props) => props.isError ? '#C1D1F2' : '#6487E2'};
+  color: ${(props) => props.isError ? '#DDDDF7' : '#A49EE7'};
   font-size: 0.5rem;
   font-family: 'Pretendard', sans-serif;
   font-weight: 600;
