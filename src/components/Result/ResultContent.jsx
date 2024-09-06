@@ -1,20 +1,20 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import {theme} from '../../theme';
+import { theme } from '../../theme';
 import { useLocation } from 'react-router-dom';
 
 function ResultContent() {
-  const [analysisResult, setAnalysisResult] = useState("");
+  const [analysisResult, setAnalysisResult] = useState('');
   const location = useLocation();
   const [isOpen, setIsOpen] = useState({
     htp: false,
-    analysis: false
+    analysis: false,
   });
   const [results, setResults] = useState({
     home: '',
     tree: '',
     person: '',
-    summary: ''
+    summary: '',
   });
   const toggleSection = section => {
     setIsOpen(prev => ({ ...prev, [section]: !prev[section] }));
@@ -33,8 +33,8 @@ function ResultContent() {
         const response = await fetch(`https://dev.catchmind.shop/api/picture/${pictureId}`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${jwtToken}`  // 헤더에 토큰을 포함시킵니다.
-          }
+            'Authorization': `Bearer ${jwtToken}`,  // 헤더에 토큰을 포함시킵니다.
+          },
         });
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -55,33 +55,27 @@ function ResultContent() {
   }, [jwtToken, pictureId]);  // 의존성 배열에 jwtToken과 pictureId 추가
   
   function parseResults(text) {
-    const home = text.match(/\[집\]\s*([^[]*)/)?.[1].trim() || "집 정보 없음";
-    const tree = text.match(/\[나무\]\s*([^[]*)/)?.[1].trim() || "나무 정보 없음";
-    const person = text.match(/\[사람\]\s*([^[]*)/)?.[1].trim() || "사람 정보 없음";
-    const summary = text.match(/\[종합\]\s*([^[]*)/)?.[1].trim() || "종합 정보 없음";
+    const home = text.match(/\[집\]\s*([^[]*)/)?.[1].trim() || '집 정보 없음';
+    const tree = text.match(/\[나무\]\s*([^[]*)/)?.[1].trim() || '나무 정보 없음';
+    const person = text.match(/\[사람\]\s*([^[]*)/)?.[1].trim() || '사람 정보 없음';
+    const summary = text.match(/\[종합\]\s*([^[]*)/)?.[1].trim() || '종합 정보 없음';
     const result = { home, tree, person, summary };
     return result;
-}
+  }
 
   
   return (
-    <div>
-        <Resultcontent>
-          <Content>
-        <DetailsSection>
-          <SectionContent>전반적으로 당신은 사회적응상태나 정서면에서 안정적입니다. 외부환경과는 긍정적인 상호작용을 하고 관계를 맺고 있는 것으로 보입니다. 정신 생활, 특히 공상적인 부분이 지극히 평범한 편입니다. 타인을 의식하며 자신의 좋은 모습만 보이고 싶습니다. 평범한 가정 입니다. 태도나 생각이 거리낌없고 개방적입니다. 애정을 쏟거나 의존하고 싶고 보호하고 싶어하는 대상이 있습니다. 관심을 쏟아야할 존재가 있습니다. 주변에 처리해야 할 일들이 많아 스트레스를 받고 있습니다. 사람과의 관계에 있어서는 신중하게 다가갑니다. 자신에게 주어진 일이 있다면 누구보다도 책임의식을 갖고 일하는 사람입니다. 근심이나 스트레스가 존재합니다.</SectionContent>
-        </DetailsSection>
-      </Content>
-      
-        <Accordion>
-          <AccordionHeader onClick={() => toggleSection('htp')}>
+    <Resultcontent>
+      <SectionContent>전반적으로 당신은 사회적응상태나 정서면에서 안정적입니다. 외부환경과는 긍정적인 상호작용을 하고 관계를 맺고 있는 것으로 보입니다. 정신 생활, 특히 공상적인 부분이 지극히 평범한 편입니다. 타인을 의식하며 자신의 좋은 모습만 보이고 싶습니다. 평범한 가정 입니다. 태도나 생각이 거리낌없고 개방적입니다. 애정을 쏟거나 의존하고 싶고 보호하고 싶어하는 대상이 있습니다. 관심을 쏟아야할 존재가 있습니다. 주변에 처리해야 할 일들이 많아 스트레스를 받고 있습니다. 사람과의 관계에 있어서는 신중하게 다가갑니다. 자신에게 주어진 일이 있다면 누구보다도 책임의식을 갖고 일하는 사람입니다. 근심이나 스트레스가 존재합니다.</SectionContent>
+      <Accordion>
+        <AccordionHeader onClick={() => toggleSection('htp')}>
             HTP 그림 검사 유의사항
-            <Icon isOpen={isOpen.htp} />
-          </AccordionHeader>
-          <AccordionBody isOpen={isOpen.htp}>
+          <Icon isOpen={isOpen.htp} />
+        </AccordionHeader>
+        <AccordionBody isOpen={isOpen.htp}>
           HTP 그림 심리 검사는 개인의 심리 상태를 탐색하고 이해하는 데 중요한 도구입니다. 그러나 이 검사 결과에만 의존하기보다는, 다양한 접근을 통해 마음을 이해하려는 노력도 함께해 주시기 바랍니다. 아이의 마음을 더 깊이 이해하기 위해서는 시간을 두고 여러 차례에 걸쳐 검사를 해보는 것이 좋습니다
-          </AccordionBody>
-          </Accordion>
+        </AccordionBody>
+      </Accordion>
       <Accordion>
         <AccordionHeader onClick={() => toggleSection('analysis')}>
           검사 결과 이용에 대한 안내
@@ -91,8 +85,7 @@ function ResultContent() {
         검사를 통해 얻은 결과는 오직 AI 모델 학습에만 사용됩니다. 여러분의 개인 데이터는 이외의 어떠한 목적으로도 사용되지 않음을 약속드립니다.
         </AccordionBody>
       </Accordion>
-        </Resultcontent>
-    </div>
+    </Resultcontent>
   );
 }
 export default ResultContent;
@@ -101,9 +94,7 @@ export default ResultContent;
 const Resultcontent = styled.div`
 
 ${theme.media.mobile`
-
-    margin: 0 auto; // 가운데 정렬 추가
-
+  height: auto;
 `}
 `;
 const ContentTitle = styled.p`
@@ -128,7 +119,7 @@ const Content = styled.p`
   
   `}
 
-`
+`;
 const Accordion = styled.div`
   width: 100%;
   border: 0.0625rem solid #C3C1F1;
@@ -169,12 +160,12 @@ const AccordionBody = styled.div`
   display: ${props => props.isOpen ? 'block' : 'none'};
 `;
 
-const DetailsSection = styled.div`
+// const DetailsSection = styled.div`
 
-  ${theme.media.mobile` 
+//   ${theme.media.mobile` 
 
-  `}
-`;
+//   `}
+// `;
 
 const SectionTitle = styled.h2`
   font-size: 1rem;
