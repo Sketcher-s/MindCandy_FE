@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation} from "react-router-dom";
 import './index.css';
 import PreparePage from './components/Draw/PreparePage';
