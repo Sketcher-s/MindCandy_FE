@@ -30,13 +30,47 @@ function Result() {
   const jwtToken = localStorage.getItem('jwtToken');  // 로컬 스토리지에서 토큰을 가져옵니다.
   const pictureId = location.state?.response?.pictureDto?.id;
   const [canSave, setCanSave] = useState(false);
-
+  const [isMobile, setIsMobile] = useState(false); // 모바일 규격 감지
+  const [slideshowIndex, setSlideshowIndex] = useState(0); // 슬라이드 인덱스
   const pictures = [homeImage, treeImg, manImg, womanImg, homeImage];
-
   // 그림 이동 버튼
   const totalSteps = pictures.length;; // List의 총 갯수
   const [currentStep, setCurrentStep] = useState(0); // 현재 선택된 페이지 (0부터 시작)
   const [modalImage, setModalImage] = useState(null); // 모달에 띄울 이미지
+
+  useEffect(() => {
+    // 모바일 환경인지 감지
+    const checkIfMobile = () => {
+      if (window.innerWidth <= 768) {
+        setIsMobile(true);
+      } else {
+        setIsMobile(false);
+      }
+    };
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+
+    return () => {
+      window.removeEventListener('resize', checkIfMobile);
+    };
+  }, []);
+
+  useEffect(() => {
+    let intervalId;
+
+    if (currentStep === totalSteps - 1 && isMobile) {
+      // 2초 간격으로 이미지 슬라이드
+      intervalId = setInterval(() => {
+        setSlideshowIndex((prevIndex) => (prevIndex + 1) % pictures.length);
+      }, 2000);
+    }
+    // 컴포넌트가 언마운트될 때 타이머 정리
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [currentStep, isMobile]);
 
   const handleMyPageClick = async () => {
     if (!title || title.length > 15) {
@@ -191,12 +225,20 @@ function Result() {
         <DrawingSection>
           <TopContainer>
             <Title>&ldquo;집&rdquo; 그림에 대한 검사 결과</Title>
-            {currentStep === totalSteps - 1 && (
+            {!isMobile && currentStep === totalSteps - 1 && (
               <InfoContainer>
-                <LookContainer onClick={() => handleModalOpen(homeImage)}><LookImg src={home} />집</LookContainer>
-                <LookContainer onClick={() => handleModalOpen(treeImg)}><LookImg src={tree} />나무</LookContainer>
-                <LookContainer onClick={() => handleModalOpen(manImg)}><LookImg src={man} />남자 사람</LookContainer>
-                <LookContainer onClick={() => handleModalOpen(womanImg)}><LookImg src={woman} />여자 사람</LookContainer>
+                <LookContainer onClick={() => handleModalOpen(homeImage)}>
+                  <LookImg src={home} />집
+                </LookContainer>
+                <LookContainer onClick={() => handleModalOpen(treeImg)}>
+                  <LookImg src={tree} />나무
+                </LookContainer>
+                <LookContainer onClick={() => handleModalOpen(manImg)}>
+                  <LookImg src={man} />남자 사람
+                </LookContainer>
+                <LookContainer onClick={() => handleModalOpen(womanImg)}>
+                  <LookImg src={woman} />여자 사람
+                </LookContainer>
               </InfoContainer>
             )}
           </TopContainer>
@@ -208,7 +250,14 @@ function Result() {
                 style={{ cursor: currentStep === 0 ? 'not-allowed' : 'pointer', width: '100%' }} // 비활성화 시 커서 변경
               />
             </NextL>
-            <StyledImage src={pictures[currentStep]} alt="Drawing for Analysis" />
+            {isMobile && currentStep === totalSteps - 1 ? (
+            // 모바일 규격에서 이미지 슬라이드
+              <ImageContainer>
+                <StyledImage src={pictures[slideshowIndex]} alt="Slideshow Image" />
+              </ImageContainer>
+            ) : (
+              <StyledImage src={pictures[currentStep]} alt="Drawing for Analysis" />
+            )}
             <NextBtn onClick={handleNextClick} disabled={currentStep === totalSteps - 1}>
               <img
                 src={currentStep === totalSteps - 1 ? nextRDis : nextR}
@@ -390,9 +439,21 @@ const TitleInput = styled.input`
     font-size: 0.9rem;
   `}
 `;
+const ImageContainer = styled.div`
+  display: flex;
+  width: 80%;
+  justify-content: center;
+  max-height: 11.6rem;
+  background-color: #F3F3F6;
+`;
+
 const StyledImage = styled.img`
   max-width: 75%;
   max-height: 80%;
+   ${theme.media.mobile`
+    font-size: 0.9rem;
+    max-height: 11.6rem;
+  `}
   //border: 1px solid #E0E1E9
 `;
 
@@ -412,7 +473,8 @@ const DrawResult = styled.div`
   /* border: 1px solid #E0E1E9; */
   position: relative;
   ${theme.media.mobile`
-    width:80%;
+    width:100%;
+    max-height: 12rem;
     margin: 0;
     padding: 1rem 0.6rem;
   `}
