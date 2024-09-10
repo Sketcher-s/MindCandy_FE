@@ -18,11 +18,12 @@ export const theme = {
         }
       `,
 
-      // tablet: (styles) => `
-      //     @media (min-width: 768px) and (max-width: 1023px) {
-      //       ${styles}
-      //     }
-      //   `,
+      //테블릿 가로
+      tablet: (styles) => `
+          @media (min-width: 768px) and (max-width: 1023px) {
+            ${styles}
+          }
+        `,
 
       desktop: (styles) => `
           @media (min-width: 768px) {

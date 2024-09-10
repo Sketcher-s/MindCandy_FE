@@ -41,139 +41,90 @@ function InputPhoto() {
   const [jwtToken, setjwtToken] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (imgFile) {
-      const img = new Image();
-      img.onload = () => {
-        setImgDimensions({ width: img.width, height: img.height });
-        console.log('규격', imgDimensions);
-    };
-    img.src = URL.createObjectURL(imgFile);
-    }
-  }, [imgFile, Navigate]);
 
-  
+// const handleFileChange = (index) => (event) => {
+//   const file = event.target.files[0];
+//   if (file && file.type.startsWith('image/')) {
+//     const reader = new FileReader();
+    
+//     reader.onloadend = () => {
+//       setImagePreviews(prev => ({ ...prev, [index]: reader.result }));
+//       setImgFile(file);  // 파일을 선택한 후에 imgFile을 설정
+//     };
 
-
-//   const handleFileChange = (event) => {
-
-//     console.log('handleFileChange called', event); // 디버깅용 로그
-
-
-//     if (event.target && event.target.files) {
-//       const file = event.target.files[0];
-//       if (file) {
-//         // 파일 처리 로직 추가
-//         console.log('Selected file:', file);
-        
-//         // 이미지 파일인지 확인
-//         if (file.type.startsWith('image/')) {
-
-//           //로그 찍어보려고 추가
-//           const formData = new FormData();
-//           formData.append('file', file);
-//           // FormData에 추가된 파일 확인
-//           for (let [key, value] of formData.entries()) {
-//             console.log(`${key}: ${value.name}`);
-//           }
-          
-//           setImgFile(file);
-//            // 서버로 파일 전송
-//            uploadFile(); // 파일을 함수의 인자로 전달
-
-//            // 이미지 파일인 경우 로딩 페이지로 전달
-//           //Navigate('/loading', { state: { imageData: URL.createObjectURL(file)} });
-          
-
-//         } else {
-//           // 이미지 파일이 아닌 경우 경고 메시지 출력
-//           console.error('Selected file is not an image.');
-//         }
-//       } else {
-//         console.error('No file selected.');
-//       }
-//     } else {
-//       console.error('Event target or files not available.');
-//     }
-//   };
-
+//     reader.readAsDataURL(file); // 파일을 읽어 데이터 URL로 변환
+//   } else {
+//     console.error('선택된 파일이 이미지가 아니거나 파일이 선택되지 않았습니다.');
+//   }
+// };
 
 const handleFileChange = (index) => (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      
-      reader.onloadend = () => {
-        setImagePreviews(prev => ({ ...prev, [index]: reader.result }));
-      };
-  
-      reader.readAsDataURL(file); // 파일을 읽어 데이터 URL로 변환
-    } else {
-      console.error('선택된 파일이 이미지가 아니거나 파일이 선택되지 않았습니다.');
-    }
-  };
-  
-
-    //파일 업로드 함수
-    const uploadFile = async () => {
-
-  
-      if (!jwtToken) {
-          console.error("User not authenticated");
-          return;
-      }
+  const file = event.target.files[0]; // 사용자가 선택한 파일
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
     
-      const fileInput = document.querySelector('input[type="file"]');
-      const file = fileInput.files[0];
-  
-      
-      if (!file) {
-        console.error("No file selected");
-        return;
-      }
-  
-      // FormData 객체 생성
-      const formData = new FormData();
-      formData.append('file', file);
+    reader.onloadend = () => {
+      setImagePreviews(prev => ({ ...prev, [index]: reader.result }));
+      setImgFile(file);  // 파일을 선택한 후에 imgFile 상태로 저장
+      console.log('파일 선택 완료:', file);  // 파일 정보 로그 출력
 
-        
-      setIsLoading(true);
+      // 파일이 선택된 후 바로 서버로 전송
+      // uploadFile(file);
+    };
+    reader.readAsDataURL(file); // 파일을 읽어 미리보기 URL로 변환
 
-      // 로그 추가: 요청 전송 직전
-      console.log('Sending POST request to server with form data:', formData);
-    
-      try {
-        // 서버로 POST 요청 보내기
-        const response = await fetch('https://dev.catchmind.shop/api/picture', {
+  } else {
+    console.error('선택된 파일이 이미지가 아니거나 파일이 선택되지 않았습니다.');
+  }
+};
+  
+ // 파일 업로드 함수
+ const uploadFile = async () => {
+  if (!jwtToken) {
+      console.error('인증권한 없음');
+      return;
+  }
+
+  console.log('JWT Token:', jwtToken);
+
+
+  if (!imgFile) {
+      console.error('파일이 선택되지 않음');
+      return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', imgFile);
+  // formData.append('pictureType', JSON.stringify({ pictureType: 'HOUSE' })); //  'pictureType'을 추가 json 타입을 각각 지정해줘야하나 ..
+
+   // FormData 내용 로그 출력
+   for (let [key, value] of formData.entries()) {
+    console.log(`${key}: ${value}`);
+}
+
+  setIsLoading(true);
+
+  try {
+      const response = await fetch('https://dev.catchmind.shop/api/picture/recognition', {
           method: 'POST',
           headers: {
-  
-          //'Accept': '*/*',
-          //'Content-Type': 'multipart/form-data', // 파일 업로드시에는 Content-Type을 multipart/form-data로 설정합니다.
-          'Authorization': `Bearer ${jwtToken}`, // 사용자 토큰을 헤더에 포함하여 서버로 전송
-  
+              'Authorization': `Bearer ${jwtToken}`, // 사용자 토큰을 헤더에 포함하여 서버로 전송
           },
           body: formData,
-        });
-    
-        // 응답 확인
-        if (response.ok) {
+      });
+
+      if (response.ok) {
           const data = await response.json();
-          console.log('File uploaded successfully:', data);
-           // 파일 업로드 성공 후 result 페이지로 이동
-           Navigate('/result', { state: { response: data } });
-        } else {
-          console.error('File upload failed', await response.text());
-        }
-      } catch (error) {
-        console.error('Error uploading file:', error.response.status, error.response.statusText);
-      } finally {
-        setIsLoading(false); // 업로드 완료 시 로딩 상태 비활성화
+          console.log('파일 업로드 성공:', data);
+      } else {
+          console.error('파일 업로드 실패', await response.text());
       }
-    };
-    
-    //함수 호출
-    //uploadFile();
+  } catch (error) {
+      console.error('Error uploading file:', error);
+  } finally {
+      setIsLoading(false);
+  }
+};
 
   const handleButtonClick = (index) => () => {
     // 파일을 선택하기 위해 input 요소 클릭
@@ -194,8 +145,6 @@ const handleFileChange = (index) => (event) => {
     "종이를 세로 방향으로 그려주세요."
   ];
 
-
-
   return (
     <OuterContainer>
       <InnerContainer>
@@ -206,7 +155,14 @@ const handleFileChange = (index) => (event) => {
         <PhotoBox>
         <Row>
             {Array.from({ length: 2 }).map((_, index) => (
-            <PutPhoto key={index} onClick={handleButtonClick(index)}>
+            // <PutPhoto key={index} onClick={handleButtonClick(index)}>
+            <PutPhoto 
+            key={index} 
+            onClick={() => {
+            handleButtonClick(index)(); // 먼저 파일 선택을 위한 클릭 이벤트 실행
+            uploadFile(); // 파일 업로드 함수 실행
+            }}
+            >
                 {/* 이미지 미리보기 또는 업로드 텍스트 */}
                 {imagePreviews[index] ? (
                 <img src={imagePreviews[index]} alt={`Image Preview ${index}`} style={{ width: '100%', maxHeight: '200px', borderRadius: '10px' }} />
@@ -260,7 +216,7 @@ const handleFileChange = (index) => (event) => {
 
         <TwoBox>
         <Text>소요 시간</Text>
-        <Text1>아이가 그림그리기 시작한 시각과 완료한 시각을 적어주세요.</Text1>
+        <Text1>아이가 그림그리기 시작한 시각과 완료한 시각을 적어주세요.</Text1>
         </TwoBox>
 
         <TimerBox>
@@ -297,14 +253,15 @@ const handleFileChange = (index) => (event) => {
 InputPhoto.propTypes = {
     imgFile: PropTypes.instanceOf(File),
   };
-  
 
 export default InputPhoto;
 
 // 스타일 컴포넌트 정의
 const OuterContainer = styled.div`
   width: 100%;
-  height: 93vh;
+  // height: 93vh;
+  height: 90vh; // 뷰포트의 전체 높이
+  overflow-y: auto; /* 수직 스크롤 활성화 */
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -312,14 +269,12 @@ const OuterContainer = styled.div`
   display: flex;
   background: #f3f3f6;
 
-  ${theme.media.mobile`
-`}
-
 `;
 
 const InnerContainer = styled.div`
   width: 40.25rem; //644px;
-  height: 61.815rem; //477px;
+  // height: 61.815rem; //477px;
+  height: 85vh; // 뷰포트의 전체 높이
   padding-top: 2.5rem; //40px;
   padding-bottom: 2.5rem; //40px;
   justify-content: center;
@@ -372,7 +327,7 @@ const PhotoBox = styled.div`
 
 
   ${theme.media.mobile`
-
+      flex-direction: column;
   
 `}
 `;
@@ -391,7 +346,6 @@ const PutPhoto = styled.div`
     background: #FDFDFF;
 
   ${theme.media.mobile`
-
   
 `}
 `;
@@ -402,6 +356,11 @@ const Row = styled.div`
   margin-bottom: 20px; // 다음 Row와의 간격
   flex-direction: column;
   gap: 0.625rem;
+
+    ${theme.media.mobile`
+
+      flex-direction: column;
+`}
 `;
 
 const PutPhotoText1 = styled.text`

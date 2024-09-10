@@ -68,7 +68,7 @@ function App() {
 export default App;
 
 const Container = styled.div`
-  height: ${(props) => (props.isMainPage || props.isPicPage || props.isResultPage ? 'auto' : '100vh')};
-  overflow-y: ${(props) => (props.isMainPage  || props.isPicPage || props.isResultPage ? 'auto' : 'hidden')};
+  height: ${(props) => (props.isMainPage || props.isPicPage || props.isResultPage || props.isInputPhoto ? 'auto' : '100vh')};
+  overflow-y: ${(props) => (props.isMainPage  || props.isPicPage || props.isResultPage || props.isInputPhoto ? 'auto' : 'hidden')};
   overflow-x: hidden;
 `;

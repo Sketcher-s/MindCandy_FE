@@ -17,7 +17,7 @@ position :fixed;
 `
 const ModalWrapper = styled.div`
 background: white;
-  border-radius: 0.25rem; // 4px to rem
+  border-radius: 0.625rem; // 10px to rem
   display: flex;
   flex-direction: column;
   align-items: center;

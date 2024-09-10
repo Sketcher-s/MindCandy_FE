@@ -11,6 +11,9 @@ import { ReactComponent as Gtrash } from '../../assets/Draw/Gtrash.svg';
 import { ReactComponent as Peraser } from '../../assets/Draw/Peraser.svg';
 import { ReactComponent as Ppencil } from '../../assets/Draw/Ppencil.svg';
 import { ReactComponent as Ptrash } from '../../assets/Draw/Ptrash.svg';
+import { ReactComponent as Draw } from '../../assets/Draw/Draw.svg';
+import { ReactComponent as ErasePart } from '../../assets/Draw/ErasePart.svg';
+import { ReactComponent as EraseAll } from '../../assets/Draw/EraseAll.svg';
 import { atom } from 'recoil';
 import {} from 'recoil';
 import { useRecoilState } from 'recoil';
@@ -37,18 +40,17 @@ const DrawModal = ({ isOpen, onClose, content }) => {
     const [savedSignatures, setSavedSignatures] = useState([]);
     const [canvasData, setCanvasData] = useState('');
     //각 버튼 클릭시 버튼 변경
-    const [isButtonClicked, setIsButtonClicked] = useState(false);
+    //const [isButtonClicked, setIsButtonClicked] = useState(false);
     // //그림판 구현
     const [canvasSize, setCanvasSize] = useState({ width: 50, height: 50 });
     const [color, setColor] = useState("black");
+    //hover
+    // const [isHovered, setIsHovered] = useState(false);
+    const [isButtonClicked, setIsButtonClicked] = useState(null);
 
-    // 모달 바깥을 클릭할 때 실행되는 함수
-    const handleContainerClick = (event) => {
-      // 모달 콘텐츠가 이벤트를 받지 않았을 때만 onClose 함수를 실행
-      if (event.target === event.currentTarget) {
-          onClose();
-      }
-  };
+    const [hoverGpencil, setHoverGpencil] = useState(false);
+    const [hoverGeraser, setHoverGeraser] = useState(false);
+    const [hoverGtrash, setHoverGtrash] = useState(false);
 
     // 로그인 상태
     const [isLoggedIn, setIsLoggedIn] = useRecoilState(LoginState);
@@ -518,35 +520,57 @@ const DrawModal = ({ isOpen, onClose, content }) => {
       {/* WPencil 버튼 */}
       {isButtonClicked !== 'Gpencil' ? (
         <WStyledWrapper>
-          <Gpencil onClick={() => {handleClick('Gpencil'); handleColorChange('black'); changePenSize(minPenSize);}} />
+          <Gpencil 
+          onMouseEnter={() => setHoverGpencil(true)}
+          onMouseLeave={() => setHoverGpencil(false)}
+          onClick={() => {handleClick('Gpencil'); handleColorChange('black'); changePenSize(minPenSize);}} />
         </WStyledWrapper>
       ) : (
         <BStyledWrapper>
-          <Ppencil onClick={() => handleClick('Gpencil')} />
+          <Ppencil 
+          onMouseEnter={() => setHoverGpencil(true)}
+          onMouseLeave={() => setHoverGpencil(false)}
+          onClick={() => handleClick('Gpencil')} />
         </BStyledWrapper>
       )}
-
+      {hoverGpencil && <DrawStyle/>}
+      
       {/* BEraser 버튼 */}
       {isButtonClicked !== 'Geraser' ? (
         <WStyledWrapper>
-          <Geraser onClick={() => {handleClick('Geraser'); handleColorChange('white'); changePenSize(maxPenSize);}} />
+          <Geraser 
+          onMouseEnter={() => setHoverGeraser(true)}
+          onMouseLeave={() => setHoverGeraser(false)}
+          onClick={() => {handleClick('Geraser'); handleColorChange('white'); changePenSize(maxPenSize);}} />
         </WStyledWrapper>
       ) : (
         <BStyledWrapper>
-          <Peraser onClick={() => handleClick('Geraser')} />
+          <Peraser 
+          onMouseEnter={() => setHoverGeraser(true)}
+          onMouseLeave={() => setHoverGeraser(false)}
+          onClick={() => handleClick('Geraser')} />
         </BStyledWrapper>
       )}
+      {hoverGeraser && <EraseAllStyle/>}
 
       {/* BTrash 버튼 */}
       {isButtonClicked !== 'Gtrash' ? (
         <WStyledWrapper>
-          <Gtrash onClick={() => handleClick('Gtrash')} />
+          <Gtrash 
+          onMouseEnter={() => setHoverGtrash(true)}
+          onMouseLeave={() => setHoverGtrash(false)}
+          onClick={() => handleClick('Gtrash')} />
         </WStyledWrapper>
       ) : (
         <BStyledWrapper>
-          <Ptrash onClick={() => handleClick('Gtrash')} />
+          <Ptrash 
+          onMouseEnter={() => setHoverGtrash(true)}
+          onMouseLeave={() => setHoverGtrash(false)}
+          onClick={() => handleClick('Gtrash')} />
         </BStyledWrapper>
       )}
+      {hoverGtrash && <ErasePartStyle/>}
+
         </Icon>
         </DrawingArea>
         
@@ -828,3 +852,27 @@ const ButtonBox = styled.div`
   align-items: center;
 
 `;
+
+const DrawStyle = styled(Draw)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 9rem; // 오른쪽으로부터 20px
+`;
+
+const EraseAllStyle = styled(EraseAll)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 9rem; // 오른쪽으로부터 20px
+  top: 3.5rem;
+`;
+
+const ErasePartStyle = styled(ErasePart)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 9rem; // 오른쪽으로부터 20px
+  top: 7rem;
+`;
+
+
+
+
