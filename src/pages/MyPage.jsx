@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React, {useState, useEffect, useCallback, useRef} from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { ReactComponent as User } from '../assets/User/user.svg';
 import { theme } from '../theme';
 import InquiryMypage from '../components/MyPage/InquiryMypage';
@@ -8,7 +8,7 @@ import Modal from '../components/Modal';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { LoginState } from '../recoil/recoilState';
-import noneData from "../assets/mypage/noneData.svg";
+import noneData from '../assets/mypage/noneData.svg';
 
 // 주요 컨테이너
 const MyPageContainer = styled.div`
@@ -237,173 +237,182 @@ const EntryDate = styled.div`
 
 // MyPage 함수형 컴포넌트
 const MyPage = () => {
-    const [data, setData] = useState([]);
-    const [page, setPage] = useState(0);
-    const [loading, setLoading] = useState(false);
-    const [userInfo,setUserInfo] = useState({name: '', email: ''});
-    const size = 8;
-    const [modalStatus, setModalStatus] = useState(null);
-    const listRef = useRef(null);
-    const navigate = useNavigate();
+  const [data, setData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [userInfo,setUserInfo] = useState({ name: '', email: '' });
+  const size = 8;
+  const [modalStatus, setModalStatus] = useState(null);
+  const listRef = useRef(null);
+  const navigate = useNavigate();
     
-    // 로그인 상태
-    const [isLoggedIn, setIsLoggedIn] = useRecoilState(LoginState);
-    if(!isLoggedIn){
-      navigate('/');
-    }
+  // 로그인 상태
+  const [isLoggedIn, setIsLoggedIn] = useRecoilState(LoginState);
+  if(!isLoggedIn){
+    navigate('/');
+  }
 
-    const loadMoreData = useCallback(async () => {
-      if(loading) return;
-      setLoading(true);
-      try {
-        console.log('loading more data');
-        const response = await InquiryMypage(page, size);
+  const loadMoreData = useCallback(async () => {
+    if(loading) return;
+    setLoading(true);
+    try {
+      console.log('loading more data');
+      const response = await InquiryMypage(page, size);
         
-        // 응답 구조를 확인
-        console.log('API Response:', response);
+      // 응답 구조를 확인
+      console.log('API Response:', response);
 
-        const {simpleMemberDto, simplePictureDtoList} = response;
+      const { simpleMemberDto, simpleResultDtoList } = response;
     
-        if(page === 0){
-          setUserInfo({
-            name: simpleMemberDto.name,
-            email: simpleMemberDto.email
-          });
-        }
-
-        setData(prevData => [...prevData, ...simplePictureDtoList]);
-        setPage(prevPage => prevPage + 1);
-        
-      } catch (error) {
-        console.error('Error loading more data:', error);
-      } finally {
-        setLoading(false);
+      if(page === 0){
+        setUserInfo({
+          name: simpleMemberDto.name,
+          email: simpleMemberDto.email,
+        });
       }
-    }, [page, loading]);
+
+      // simpleResultDtoList 비어있을 때 처리
+      if (simpleResultDtoList.length === 0 && page === 0) {
+      // 빈 데이터일 때 사용자에게 보여줄 피드백 추가
+        console.log('No data available');
+        setData([]); // 빈 배열을 설정
+      } else {
+      // 데이터가 있을 경우 기존 데이터에 추가
+        setData(prevData => [...prevData, ...simpleResultDtoList]);
+      }
+    
+      setPage(prevPage => prevPage + 1);
+        
+    } catch (error) {
+      console.error('Error loading more data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, loading]);
 
 
-    useEffect(() => {
-      const handleScroll = () => {
-        console.log('scrolling...');
-        // listWrapperRef.current를 사용하여 스크롤 위치 접근
-        if (listRef.current) {
-          const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-          if (clientHeight + scrollTop + 50 >= scrollHeight && !loading) {
-            console.log('Load more data condition met');
-            loadMoreData();
-          }
+  useEffect(() => {
+    const handleScroll = () => {
+      console.log('scrolling...');
+      // listWrapperRef.current를 사용하여 스크롤 위치 접근
+      if (listRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = listRef.current;
+        if (clientHeight + scrollTop + 50 >= scrollHeight && !loading) {
+          console.log('Load more data condition met');
+          loadMoreData();
         }
-      };
+      }
+    };
   
-      const listWrapper = listRef.current;
+    const listWrapper = listRef.current;
+    if (listWrapper) {
+      listWrapper.addEventListener('scroll', handleScroll);
+    }
+    return () => {
       if (listWrapper) {
-        listWrapper.addEventListener('scroll', handleScroll);
+        listWrapper.removeEventListener('scroll', handleScroll);
       }
-      return () => {
-        if (listWrapper) {
-          listWrapper.removeEventListener('scroll', handleScroll);
-        }
-      };
-    }, [loadMoreData, loading]); // 의존성 배열 업데이트
+    };
+  }, [loadMoreData, loading]); // 의존성 배열 업데이트
 
-    useEffect(() => {
-      loadMoreData(); // 초기 데이터 로드     
-    }, []); 
+  useEffect(() => {
+    loadMoreData(); // 초기 데이터 로드     
+  }, []); 
 
 
-    const handleClose = () => {
-      setModalStatus(null);
+  const handleClose = () => {
+    setModalStatus(null);
+  };
+
+  const handleOpen = () => {
+    setModalStatus('doubleCheck'); 
+  };
+
+  // 회원탈퇴
+  const handleWithDraw = async() => {
+    try{
+      const response = await WithDrawal();
+      console.log('api', response);
+      setModalStatus('alert');
+      localStorage.removeItem('jwtToken'); // 토큰 삭제
+      setIsLoggedIn(false); // 로그아웃
+    }catch (error){
+      console.error('Error delete:', error);
     }
+  };
 
-    const handleOpen = () => {
-      setModalStatus('doubleCheck'); 
-    }
-
-    // 회원탈퇴
-    const handleWithDraw = async() => {
-      try{
-        const response = await WithDrawal();
-        console.log('api', response);
-        setModalStatus('alert');
-        localStorage.removeItem('jwtToken'); // 토큰 삭제
-        setIsLoggedIn(false); // 로그아웃
-      }catch (error){
-        console.error('Error delete:', error);
-      }
-    }
-
-    // 메인으로 이동
+  // 메인으로 이동
     
-    const moveToMain = () => {
-      navigate('/');
-    }
+  const moveToMain = () => {
+    navigate('/');
+  };
 
-    // 항목 클릭 시, 해당 항목 결과 페이지로 이동
-    const moveToList = (id, title) => {
-      navigate(`/result`, {state: { response: { pictureDto: { id: id, title: title} },fromMyPage:true } });
-    }
+  // 항목 클릭 시, 해당 항목 결과 페이지로 이동
+  const moveToList = (id, title) => {
+    navigate('/result', { state: { response: { pictureDto: { id: id, title: title } },fromMyPage:true } });
+  };
  
-    // 시간 띄우기
-    const formatDate = (dateString) => {
-      const date = new Date(dateString);
-      const year = date.getFullYear(); // 년도
-      const month = date.getMonth() + 1; // 월 (0부터 시작하므로 +1)
-      const day = date.getDate(); // 일
-      const hour = date.getHours(); // 시
-      const minute = date.getMinutes(); // 분
+  // 시간 띄우기
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear(); // 년도
+    const month = date.getMonth() + 1; // 월 (0부터 시작하므로 +1)
+    const day = date.getDate(); // 일
+    const hour = date.getHours(); // 시
+    const minute = date.getMinutes(); // 분
 
-      // 두자리
-      const monthFormatted = (`0${month}`).slice(-2);
-      const dayFormatted = (`0${day}`).slice(-2);
-      const hourFormatted = (`0${hour}`).slice(-2);
-      const minuteFormatted = (`0${minute}`).slice(-2);
+    // 두자리
+    const monthFormatted = (`0${month}`).slice(-2);
+    const dayFormatted = (`0${day}`).slice(-2);
+    const hourFormatted = (`0${hour}`).slice(-2);
+    const minuteFormatted = (`0${minute}`).slice(-2);
 
-      return `${year}년 ${monthFormatted}월 ${dayFormatted}일 ${hourFormatted}시 ${minuteFormatted}분`;
-    }
+    return `${year}년 ${monthFormatted}월 ${dayFormatted}일 ${hourFormatted}시 ${minuteFormatted}분`;
+  };
 
-    // 최신순으로 정렬
-    const sortedData = data.sort((a, b) => {
-      const dateA = new Date(a.createdAt);
-      const dateB = new Date(b.createdAt);
-      return dateB - dateA; // 내림차순 정렬
-    });
+  // 최신순으로 정렬
+  const sortedData = data.sort((a, b) => {
+    const dateA = new Date(a.createdAt);
+    const dateB = new Date(b.createdAt);
+    return dateB - dateA; // 내림차순 정렬
+  });
   
   return (
     <MyPageContainer>
-        <MyPageWrapper>
-          <Title>마이페이지</Title>
-          <ContentContainer>
-            <ProContainer>
-              <UserInfoContainer>
-                <ProfileContainer>
-                  <ProfileCircle><User/></ProfileCircle>
-                </ProfileContainer>
-                <UserInfo>
-                  <UserName>{userInfo.name}</UserName>
-                  <UserEmail>{userInfo.email}</UserEmail>
-                </UserInfo>
-              </UserInfoContainer>
-              <WithDrawalButton onClick={handleOpen}>회원탈퇴</WithDrawalButton>
-            </ProContainer>
-            <Divider />
-            <ListContainer>
-              <ListWrapper ref={listRef}>
+      <MyPageWrapper>
+        <Title>마이페이지</Title>
+        <ContentContainer>
+          <ProContainer>
+            <UserInfoContainer>
+              <ProfileContainer>
+                <ProfileCircle><User/></ProfileCircle>
+              </ProfileContainer>
+              <UserInfo>
+                <UserName>{userInfo.name}</UserName>
+                <UserEmail>{userInfo.email}</UserEmail>
+              </UserInfo>
+            </UserInfoContainer>
+            <WithDrawalButton onClick={handleOpen}>회원탈퇴</WithDrawalButton>
+          </ProContainer>
+          <Divider />
+          <ListContainer>
+            <ListWrapper ref={listRef}>
               {sortedData.map((item, index) => (
-              <EntryContainer key={index} onClick={() => moveToList(item.id, item.title)}>
-                <EntryText>{item.title || '제목을 입력하세요.'}</EntryText>
-                <EntryDate>{formatDate(item.createdAt)}</EntryDate>
-              </EntryContainer>
+                <EntryContainer key={index} onClick={() => moveToList(item.id, item.title)}>
+                  <EntryText>{item.title || '제목을 입력하세요.'}</EntryText>
+                  <EntryDate>{formatDate(item.createdAt)}</EntryDate>
+                </EntryContainer>
               ))}
               {sortedData?.length === 0 && <BeforeList src={noneData}/>}
-              </ListWrapper>
-            </ListContainer>
-          </ContentContainer>
-          {modalStatus === 'doubleCheck' && <Modal title={`${userInfo.name}님`} message={'회원 탈퇴 시, 모든 검사 기록이 삭제됩니다. 확인 버튼 클릭 시 탈퇴가 완료됩니다.'} withdrawal={handleWithDraw} close={handleClose} />}
-          {modalStatus === 'alert' && <Modal title={'그동안 이용해주셔서 감사합니다.'} messgae='' close={moveToMain}></Modal>}
-        </MyPageWrapper>
+            </ListWrapper>
+          </ListContainer>
+        </ContentContainer>
+        {modalStatus === 'doubleCheck' && <Modal title={`${userInfo.name}님`} message={'회원 탈퇴 시, 모든 검사 기록이 삭제됩니다. 확인 버튼 클릭 시 탈퇴가 완료됩니다.'} withdrawal={handleWithDraw} close={handleClose} />}
+        {modalStatus === 'alert' && <Modal title={'그동안 이용해주셔서 감사합니다.'} messgae='' close={moveToMain}></Modal>}
+      </MyPageWrapper>
     </MyPageContainer>
   );
-}
+};
 
 export default MyPage;
 
@@ -415,7 +424,7 @@ const UserInfo = styled.div`
 const BeforeList = styled.img`
   display: flex;
   width: 80%;
-`
+`;
 
 // 회원탈퇴
 const WithDrawalButton = styled.button`
