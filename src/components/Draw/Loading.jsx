@@ -1,14 +1,13 @@
-//import React from 'react';
 import React, {useState, useEffect} from 'react';
 import styled from 'styled-components';
-import spinner from '../../assets/Draw/spinner.gif';
 import Modal from '../Modal';
-import Scan from './Scan';
 import { theme } from '../../theme';
 import PropTypes from 'prop-types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { LoginState } from '../../recoil/recoilState';
+import { ReactComponent as Loading_people } from '../../assets/Draw/Loading_people.svg';
+import { ReactComponent as Magnifier } from '../../assets/Draw/Magnifier.svg';
 
 
 export default function Loading() {
@@ -26,8 +25,8 @@ export default function Loading() {
   // 모달을 12초 후에 자동으로 열기
   useEffect(() => {
     const timer = setTimeout(() => {
-      setModalOpen(true); // 12초 후 모달 열기
-    }, 16000);
+      setModalOpen(true); // 12초 후 모달 열기 16000초
+    }, 1600000);
 
     return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 해제
   }, []);
@@ -67,30 +66,22 @@ export default function Loading() {
     <OutContainer onClick={handleModalOpen}>
 
     <TContainer>
-    <Spinner src={spinner} alt="로딩중" width="5%" />
     <TexDiv>
     <Text>검사 결과를 기다리고 있어요!</Text>
     </TexDiv>
-    {/* <ImageData>
-    </ImageData> */}
-    {/* <DrawingArea>
-    </DrawingArea> */}
-    <CanvasContainer>
-  {imageData && (
-    <ImageData sizeW={imageWidth} sizeH={imageHeight}>
-      <Img id="loadedImage" src={imageData} sizeW={imageWidth} sizeH={imageHeight}/>
-    </ImageData>
-  )}
-  </CanvasContainer>
+    <PictureContainer>
+    <StyledLoadingPeople/>
+    <StyledMagnifier />
+    </PictureContainer>
     </TContainer>
 
     
-    <Scan sizeH={imageHeight}/>
+
     {/* 모달을 열기 위한 버튼 */}
     {modalOpen && (
         <Modal
-          title="그림 확인이 필요해요 !"
-          message="집, 나무, 사람이 제대로 그려졌는지 확인해주세요."
+          title="그림 확인이 필요해요!"
+          message="그림이 제대로 그려졌는지 확인해주세요."
           close={handleModalClose} // 모달을 닫는 핸들러를 전달
         />
       )}
@@ -108,29 +99,13 @@ Loading.propTypes = {
 const OutContainer = styled.div`
   width: 100%;
   height: 93vh;
-  //padding-top: 2.5rem; //40px;
-  //padding-bottom: 2.5rem; //40px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  //gap: 2.5rem; //40px;
   display: flex;
-  //background: #f3f3f6;
+  background: white;
   position: relative;
   overflow: hidden;
-`;
-
-const DrawingArea = styled.div`
-  margin-top: 5rem;
-  width: 20rem;
-  height: 20rem;
-  display: flex;
-  // flex-direction: row;
-
-  ${theme.media.mobile`
-  width: 18.625rem;
-  height: 23.375rem;
-`}
 `;
 
 const TContainer = styled.div`
@@ -142,11 +117,8 @@ justify-content: flex-start;
 align-items: center;
 gap: 1rem; //14px;
 display: flex;
-`;
 
-const Spinner = styled.img`
-  width: 1.375rem; 
-  height: 1.375rem; 
+position: relative;
 `;
 
 const Text = styled.div`
@@ -168,51 +140,55 @@ const Text = styled.div`
   `}
 `;
 
-
-const CanvasContainer = styled.div`
-  display: flex;
-  // width: 20rem; //482px;
-  // height: 24.625rem; //482px;
-
-  ${theme.media.mobile`
-  width: 70%;
-  //height: ${(props) => (props.sizeH)};
-  `}
-
-  ${theme.media.desktop`
-  width: 40%;
-  //height: ${(props) => (props.sizeH)};
-  margin-top: 4rem;
-  `}
-`;
-
 const TexDiv = styled.div`
-  // width: 20rem; //482px;
-  // height: 24.625rem; //482px;
 
   ${theme.media.mobile`
   text-align: center;
 `}
 `;
 
-const ImageData = styled.div`
-  
+const PictureContainer = styled.div`
+  display: flex;
+  width: 35rem; //560px;
+  height: 24.5rem; //392px;
+  justify-content: center;
+  align-items: center;
+  gap: 1.25rem; //20px;
+  border-radius: 0.75rem; //12px;
+  border: 1px solid #E0E1E9;
+  background: #F3F3F6;
+  margin-top: 1.875rem;
+    position: relative; // 또는 absolute 등, 필요에 따라
+
   ${theme.media.mobile`
-  text-align: center;
-  width: ${(props) => (props.sizeW)};
-  height: ${(props) => (props.sizeH)};
+
 `}
-
-  ${theme.media.desktop`
-  width: ${(props) => (props.sizeW)};
-  height: ${(props) => (props.sizeH)};
-`}
-
-
 `;
 
-const Img = styled.img`
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+const StyledLoadingPeople = styled(Loading_people)`
+  z-index: 1; // 다른 요소들보다 높은 값
+`;
+
+const StyledMagnifier = styled(Magnifier)`
+  position: absolute; // 위치 고정 대신 상대적 위치 조정
+  z-index: 1000; // 다른 요소보다 위에 위치
+  animation: trianglePath 4s infinite;
+
+  @keyframes trianglePath {
+    0% {
+      transform: translateY(10); // 시작 지점
+    }
+    33% {
+      transform: translateY(60px); // 위로 100px
+    }
+    46% {
+      transform: translate(-80px, 50px); // 오른쪽으로 100px, 위에서 유지
+    }
+    86% {
+      transform: translate(30, 120px); // 오른쪽으로 100px, 위에서 유지
+    }
+    100% {
+      transform: translate(80px, 0px); // 원래 높이로 내려오면서 오른쪽에서 시작 위치
+    }
+  }
 `;

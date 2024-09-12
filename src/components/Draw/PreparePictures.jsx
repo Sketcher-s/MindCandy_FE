@@ -1,28 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { ReactComponent as Check } from '../../assets/Draw/Check.svg';
-//import Camera from './Camera';
 import { theme } from '../../theme';
-//import DrawHook from '../../hooks/DrawHooks';
 import PropTypes from 'prop-types';
-import Loading from '../Draw/Loading'
 import { useRecoilState } from 'recoil';
 import { LoginState } from '../../recoil/recoilState';
 
 // imgFile props에 대한 유효성 검사를 추가
-PrepareDraw.propTypes = {
+PreparePicture.propTypes = {
 
-  // imgFile은 File 객체로 전달
+  // imgFile은 File 객체로 전달되어야 합니다.
   imgFile: PropTypes.instanceOf(File),
   
 };
 
-function PrepareDraw() {
+function PreparePicture() {
 
-  // 이미지 사이즈
-  const [imgFile, setImgFile] = useState(null);
-  const [imgDimensions, setImgDimensions] = useState({width: 0, height: 0});
   //페이지 이동 부분
   const Navigate = useNavigate();
   // 로그인 상태
@@ -31,37 +25,10 @@ function PrepareDraw() {
     Navigate('/');
   }
 
-  // useEffect를 사용하여 컴포넌트가 마운트될 때 토큰을 가져옵니다.
-  useEffect(() => {
-    const token = localStorage.getItem('jwtToken');
-    setjwtToken(token);
-  }, []);
-
-
   function handleButtonClick() {
-    Navigate('/InputPhoto');
+    Navigate('/inputpicture');
   }
 
-  //파일 첨부 기능
-  //파일 input 참조
-  const fileInputRef = useRef(null); 
-
-  const [jwtToken, setjwtToken] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-
-
-  useEffect(() => {
-    const token = localStorage.getItem('jwtToken');
-    if (token) {
-      console.log('사용자 인증 완료');
-
-      setjwtToken(token);
-    } else {
-      console.error("JWT token not found in local storage");
-    }
-  }, []);
-  
 
 
 
@@ -69,7 +36,7 @@ function PrepareDraw() {
     <Container>
         <Section>
           <Content>
-            <SubTitle>종이 그림 검사 안내 사항</SubTitle>
+            <SubTitle>그림판 검사 안내사항</SubTitle>
               <NoteContainer>
               <Title>검사 안내</Title>
                 <PreContainer>
@@ -84,64 +51,23 @@ function PrepareDraw() {
                 <Preparation>
                   <Check />
                 </Preparation>
-                <Text>아이가 이전 그림을 버리고 새로운 종이에 다시 그림을 그릴 경우
-                    <br />
-                    최종적으로 그린 그림을 첨부해 주세요.</Text>
-                </PreContainer>
-                <PreContainer>
-                <Preparation>
-                  <Check />
-                </Preparation>
-                <Text>4장의 종이에 집, 나무, 남자 사람, 여자 사람을 각각 그려 4개의 그림을 완성해주세요.</Text>
-                </PreContainer>
-                <PreContainer>
-                <Preparation>
-                  <Check />
-                </Preparation>
-                <Text>그림을 그리기 시작한 시각과 완료한 시각을 확인하여 입력해주세요.</Text>
+                <Text>4개의 그림판에 집, 나무, 남자 사람, 여자 사람을 각각 그려 4개의 그림을 완성해주세요.</Text>
                 </PreContainer>
               </NoteContainer>
               <NoteContainer>
-              <Title>준비물</Title>
+              <Title>그림판 안내사항</Title>
                 <PreContainer>
                 <Preparation>
                   <Check />
                 </Preparation>
-                <Text>흰색 A4용지 4장 이상</Text>
+                <Text>검정색 이외의 색상은 지원하지 않습니다.</Text>
                 </PreContainer>
                 <PreContainer>
                 <Preparation>
                   <Check />
                 </Preparation>
-                <Text>연필과 지우개</Text>
-                </PreContainer>
-                <Text1>(볼펜, 색연필, 사인펜, 물감, 수정테이프, 색도화지 등은 안돼요!)</Text1>
-              </NoteContainer>
-              <NoteContainer>
-              <Title>촬영 및 첨부 방법</Title>
-                <PreContainer>
-                <Preparation>
-                  <Check />
-                </Preparation>
-                <Text>여러 장을 한꺼번에 찍지 말고, 그림을 한장씩 촬영해 주세요.</Text>
-                </PreContainer>
-                <PreContainer>
-                <Preparation>
-                  <Check />
-                </Preparation>
-                <Text>종이가 접히거나 구겨지지 않도록 해주세요.</Text>
-                </PreContainer>
-                <PreContainer>
-                <Preparation>
-                  <Check />
-                </Preparation>
-                <Text>그림에 그늘이 지거나 어둡지 않도록 밝은 곳에서 촬영해주세요.</Text>
-                </PreContainer>
-                <PreContainer>
-                <Preparation>
-                  <Check />
-                </Preparation>
-                <Text>안내 문구에 맞게 사진을 첨부해 주세요.</Text>
+                <Text>그리기 도구, 지우기 도구, 전체 지우기 도구를 제공하니 필요에 따라 적절한 도구를 
+                      <br/>선택해주세요.</Text>
                 </PreContainer>
               </NoteContainer>
               <ButtonContainer>
@@ -159,13 +85,12 @@ function PrepareDraw() {
           </div>
         )} */}
         </Section>
-        {/* 모달을 열기 위한 버튼 */}
       
       </Container>
-  );
+          )
 }
 
-export default PrepareDraw;
+export default PreparePicture;
 
 const Container = styled.div`
 

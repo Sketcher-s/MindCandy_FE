@@ -1,11 +1,13 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, useLocation} from "react-router-dom";
 import './index.css';
-import PrepareDraw from './components/Draw/PrepareDraw';
+import PreparePage from './components/Draw/PreparePage';
 import Draw from './components/Draw/Draw';
 import Loading from './components/Draw/Loading';
 import './assets/font/font.css';
-import PreparePicture from './components/Draw/PreparePic';
+import InputPicture from './components/Draw/InputPicture';
+import PrepareDraw from './components/Draw/PrepareDraw';
+import InputPhoto from './components/Draw/InputPhoto';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MyPage from './pages/MyPage';
@@ -16,17 +18,18 @@ import Navbar from './components/Navbar/Navbar';
 import Sidebar from './components/Sidebar/Sidebar';
 import { RecoilRoot } from 'recoil';
 import styled from 'styled-components';
+import PreparePicture from './components/Draw/PreparePictures';
 
 // 스크롤 생기는 여부
 const PageLayout = () => {
   const location = useLocation();
   const isMainPage = location.pathname === '/';
-  const isPicPage = location.pathname === '/preparepicture';
   const isResultPage = location.pathname === '/result';
   const isDraw = location.pathname === '/draw';
+  const isInputPhoto = location.pathname === '/inputphoto';
 
   return (
-    <Container isMainPage={isMainPage} isPicPage={isPicPage} isResultPage={isResultPage} isDraw={isDraw}>
+    <Container isMainPage={isMainPage} isInputPhoto={isInputPhoto} isResultPage={isResultPage} isDraw={isDraw}>
       <RecoilRoot>
         <Navbar/>
             <Sidebar/>
@@ -35,9 +38,12 @@ const PageLayout = () => {
               <Route path="/login" element={<Login/>} />
               <Route path="/register" element={<Register/>} />
               <Route path="/mypage" element={<MyPage/>} />
-              <Route path="/preparedraw" element={<PrepareDraw/>} />
-              <Route path="/draw" element={<Draw/>} />
+              <Route path="/preparePage" element={<PreparePage/>} />
+              <Route path="/inputphoto" element={<InputPhoto/>} />
               <Route path="/preparepicture" element={<PreparePicture/>} />
+              <Route path="/draw" element={<Draw/>} />
+              <Route path="/inputpicture" element={<InputPicture/>} />
+              <Route path="/prepareDraw" element={<PrepareDraw/>} />
               <Route path="/loading" element={<Loading/>} />
               <Route path="/" element={<Main/>} />
               <Route path="/result" element={<Result/>} />
@@ -62,7 +68,7 @@ function App() {
 export default App;
 
 const Container = styled.div`
-  height: ${(props) => (props.isMainPage || props.isPicPage || props.isResultPage ? 'auto' : '100vh')};
-  overflow-y: ${(props) => (props.isMainPage  || props.isPicPage || props.isResultPage ? 'auto' : 'hidden')};
+  height: ${(props) => (props.isMainPage || props.isPicPage || props.isResultPage || props.isInputPhoto ? 'auto' : '100vh')};
+  overflow-y: ${(props) => (props.isMainPage  || props.isPicPage || props.isResultPage || props.isInputPhoto ? 'auto' : 'hidden')};
   overflow-x: hidden;
 `;
