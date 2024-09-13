@@ -3,70 +3,92 @@ import styled from 'styled-components';
 import { theme } from '../../theme';
 import { useLocation } from 'react-router-dom';
 
-function ResultContent() {
-  const [analysisResult, setAnalysisResult] = useState('');
-  const location = useLocation();
+function ResultContent({analysisResult}) {
+  //const [analysisResult, setAnalysisResult] = useState('');
+  //const location = useLocation();
   const [isOpen, setIsOpen] = useState({
     htp: false,
     analysis: false,
   });
-  const [results, setResults] = useState({
-    home: '',
-    tree: '',
-    person: '',
-    summary: '',
-  });
+  // const [results, setResults] = useState({
+  //   home: '',
+  //   tree: '',
+  //   person: '',
+  //   summary: '',
+  // });
   const toggleSection = section => {
     setIsOpen(prev => ({ ...prev, [section]: !prev[section] }));
   };
-  const jwtToken = localStorage.getItem('jwtToken');  // 로컬 스토리지에서 토큰을 가져옵니다.
-  const pictureId = location.state?.response?.pictureDto?.id;
+  //const jwtToken = localStorage.getItem('jwtToken');  // 로컬 스토리지에서 토큰을 가져옵니다.
+  //const pictureId = location.state?.response?.pictureDto?.id;
 
-  useEffect(() => {
-    const fetchPictureDetails = async () => {
-      if (!jwtToken) {
-        console.error('Authentication token is not available');
-        alert('로그인이 필요합니다.');
-        return;  // 토큰이 없으면 함수를 더 이상 진행하지 않습니다.
-      }
-      try {
-        const response = await fetch(`https://dev.catchmind.shop/api/picture/${pictureId}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${jwtToken}`,  // 헤더에 토큰을 포함시킵니다.
-          },
-        });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const responseData = await response.json();
-        if (responseData && responseData.pictureDto) {
-          setAnalysisResult(responseData.pictureDto.result);
-          const parsedResults = parseResults(responseData.pictureDto.result);
-          setResults(parsedResults);
-        } else {
-          throw new Error('No valid response data');
-        }
-      } catch (error) {
-        console.error('데이터받아오는거 결과값', error);  // 오류 로깅
-      }
-    };
-    fetchPictureDetails();
-  }, [jwtToken, pictureId]);  // 의존성 배열에 jwtToken과 pictureId 추가
+  // useEffect(() => {
+  //   const fetchPictureDetails = async () => {
+  //     if (!jwtToken) {
+  //       console.error('Authentication token is not available');
+  //       alert('로그인이 필요합니다.');
+  //       return;  // 토큰이 없으면 함수를 더 이상 진행하지 않습니다.
+  //     }
+  //     try {
+  //       const response = await fetch(`https://dev.catchmind.shop/api/picture/${resultId}`, {
+  //         method: 'GET',
+  //         headers: {
+  //           'Authorization': `Bearer ${jwtToken}`,  // 헤더에 토큰을 포함시킵니다.
+  //         },
+  //       });
+  //       if (!response.ok) {
+  //         throw new Error('Network response was not ok');
+  //       }
+  //       const responseData = await response.json();
+  //       if (responseData && responseData.pictureDto) {
+  //         setAnalysisResult(responseData.pictureDto.result);
+  //         const parsedResults = parseResults(responseData.pictureDto.result);
+  //         setResults(parsedResults);
+  //       } else {
+  //         throw new Error('No valid response data');
+  //       }
+  //     } catch (error) {
+  //       console.error('데이터받아오는거 결과값', error);  // 오류 로깅
+  //     }
+  //   };
+  //   fetchPictureDetails();
+  // }, [jwtToken, pictureId]);  // 의존성 배열에 jwtToken과 pictureId 추가
   
-  function parseResults(text) {
-    const home = text.match(/\[집\]\s*([^[]*)/)?.[1].trim() || '집 정보 없음';
-    const tree = text.match(/\[나무\]\s*([^[]*)/)?.[1].trim() || '나무 정보 없음';
-    const person = text.match(/\[사람\]\s*([^[]*)/)?.[1].trim() || '사람 정보 없음';
-    const summary = text.match(/\[종합\]\s*([^[]*)/)?.[1].trim() || '종합 정보 없음';
-    const result = { home, tree, person, summary };
-    return result;
-  }
+  // function parseResults(analysisResult) {
+  //   const home = text.match(/\[집\]\s*([^[]*)/)?.[1].trim() || '집 정보 없음';
+  //   const tree = text.match(/\[나무\]\s*([^[]*)/)?.[1].trim() || '나무 정보 없음';
+  //   const person = text.match(/\[사람\]\s*([^[]*)/)?.[1].trim() || '사람 정보 없음';
+  //   const summary = text.match(/\[종합\]\s*([^[]*)/)?.[1].trim() || '종합 정보 없음';
+  //   const result = { home, tree, person, summary };
+  //   return result;
+  // }
 
+  // 종합 결과
+  const parseResults = (text) => {
+    const sections = text.split(/\[([^\]]+)\]/g); // [키워드]로 텍스트를 분리
+    const result = [];
+
+    // 짝수 인덱스가 텍스트, 홀수 인덱스가 키워드
+    for (let i = 1; i < sections.length; i += 2) {
+      result.push({
+        keyword: sections[i], // 키워드
+        content: sections[i + 1]?.trim() || '', // 키워드 뒤의 텍스트
+      });
+    }
+    
+    return result;
+  };
+
+  const parsedResults = parseResults(analysisResult);
   
   return (
     <Resultcontent>
-      <SectionContent>전반적으로 당신은 사회적응상태나 정서면에서 안정적입니다. 외부환경과는 긍정적인 상호작용을 하고 관계를 맺고 있는 것으로 보입니다. 정신 생활, 특히 공상적인 부분이 지극히 평범한 편입니다. 타인을 의식하며 자신의 좋은 모습만 보이고 싶습니다. 평범한 가정 입니다. 태도나 생각이 거리낌없고 개방적입니다. 애정을 쏟거나 의존하고 싶고 보호하고 싶어하는 대상이 있습니다. 관심을 쏟아야할 존재가 있습니다. 주변에 처리해야 할 일들이 많아 스트레스를 받고 있습니다. 사람과의 관계에 있어서는 신중하게 다가갑니다. 자신에게 주어진 일이 있다면 누구보다도 책임의식을 갖고 일하는 사람입니다. 근심이나 스트레스가 존재합니다.</SectionContent>
+      <SectionContent>{parsedResults.map((section, index) => (
+        <div key={index} style={{ marginBottom: '16px' }}>
+          <p style={{ fontWeight: 'bold' }}>{`[${section.keyword}]`}</p>
+          <p>{section.content}</p>
+        </div>
+      ))}</SectionContent>
       <Accordion>
         <AccordionHeader onClick={() => toggleSection('htp')}>
             HTP 그림 검사 유의사항

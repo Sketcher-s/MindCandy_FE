@@ -16,27 +16,31 @@ import nextLDis from '../assets/Result/nextLDis.svg';
 import treeImg from '../assets/Result/treeImg.svg';
 import manImg from '../assets/Result/manImg.svg';
 import womanImg from '../assets/Result/womanImg.svg';
+import axios from 'axios';
 
 function Result() {
   const location = useLocation();
   const Navigate = useNavigate();
-  const [title, setTitle] = useState(location.state?.response?.pictureDto?.title); // 초기값은 이름을 입력해주세요. 마이페이지에서 왔으면, title 값 유지하고 있어야 함
-  const [id ,setId] = useState(0);
-  const [image, setImage] = useState('');
+  const [title, setTitle] = useState(location.state?.response?.result.title); // 초기값은 이름을 입력해주세요. 마이페이지에서 왔으면, title 값 유지하고 있어야 함
+  //const [id ,setId] = useState(0);
+  const [pictureImg, setPictureImg] = useState('');
   const [analysisResult, setAnalysisResult] = useState('');
   const [error, setError] = useState('');
   const isFromMyPage = location.state?.response?.fromMyPage ?? false;
   const [isEditing, setIsEditing] = useState(!isFromMyPage);  
   const jwtToken = localStorage.getItem('jwtToken');  // 로컬 스토리지에서 토큰을 가져옵니다.
-  const pictureId = location.state?.response?.pictureDto?.id;
+  const resultId = location.state?.resultId || location.state?.response.result.id;
   const [canSave, setCanSave] = useState(false);
   const [isMobile, setIsMobile] = useState(false); // 모바일 규격 감지
   const [slideshowIndex, setSlideshowIndex] = useState(0); // 슬라이드 인덱스
-  const pictures = [homeImage, treeImg, manImg, womanImg, homeImage];
+  //const pictures = [homeImage, treeImg, manImg, womanImg, homeImage];
+  const [pictureList, setPictureList] = useState([]);
+  const [pictureType, setPictureType] = useState('');
   // 그림 이동 버튼
-  const totalSteps = pictures.length;; // List의 총 갯수
+  const totalSteps = pictureList.length+1; // List의 총 갯수
   const [currentStep, setCurrentStep] = useState(0); // 현재 선택된 페이지 (0부터 시작)
   const [modalImage, setModalImage] = useState(null); // 모달에 띄울 이미지
+  const [resultContent, setResultContent] = useState(''); // 종합 결과
 
   useEffect(() => {
     // 모바일 환경인지 감지
@@ -61,7 +65,7 @@ function Result() {
     if (currentStep === totalSteps - 1 && isMobile) {
       // 2초 간격으로 이미지 슬라이드
       intervalId = setInterval(() => {
-        setSlideshowIndex((prevIndex) => (prevIndex + 1) % pictures.length);
+        setSlideshowIndex((prevIndex) => (prevIndex + 1) % pictureList.length);
       }, 2000);
     }
     // 컴포넌트가 언마운트될 때 타이머 정리
@@ -75,29 +79,43 @@ function Result() {
   const handleMyPageClick = async () => {
     if (!title || title.length > 15) {
       alert('제목은 필수이며, 15자를 넘지 말아주세요.');
-    } else {
-      Navigate('/mypage', { state: { id, title } });
+      return;
     }
+    //Navigate('/mypage', { state: { resultId, title } });
+    console.log("제목: ", title);
+    console.log("id: ", resultId);
     if (!jwtToken) {
       console.error('토큰오류임');
       return;
     }
     try {
-      const response = await fetch('https://dev.catchmind.shop/api/picture/title', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify({ id: pictureId, title: title }),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      const response = await axios.patch('https://dev.catchmind.shop/api/picture/title', 
+        { resultId, title }, // 데이터
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${jwtToken}`,
+          }
+        }
+      );
+      // 제목 수정 후 서버에서 최신 데이터 다시 가져오기
+    const updatedResponse = await axios.get(`https://dev.catchmind.shop/api/picture/${resultId}`, {
+      headers: {
+        'Authorization': `Bearer ${jwtToken}`,
       }
+    });
+
+    const updatedData = updatedResponse.data;
+    setTitle(updatedData.result.title);  // 업데이트된 제목 반영
+
+    // 마이페이지로 이동 (상태 전달 없이 서버에서 데이터 새로 불러오도록)
+    Navigate('/mypage', { state: { resultId}});
+      console.log("제목 저장: ", response);
     } catch (error) {
-      console.error('Error updating title:', error);
+      console.error('제목 저장 실패:', error);
     }
   };
+
   function handleMainClick() {
     Navigate('/');
     window.scrollTo(0, 0);
@@ -124,7 +142,7 @@ function Result() {
         return;  
       }
       try {
-        const response = await fetch(`https://dev.catchmind.shop/api/picture/${pictureId}`, {
+        const response = await fetch(`https://dev.catchmind.shop/api/picture/${resultId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${jwtToken}`,  // 헤더에 토큰을 포함시킵니다.
@@ -136,9 +154,13 @@ function Result() {
         }
   
         const responseData = await response.json();
-        if (responseData && responseData.pictureDto) {
-          setImage(responseData.pictureDto.imageUrl);
-          console.log('Get response:', responseData);  // 성공 응답 로깅
+        if (responseData && responseData.pictureList) {
+          console.log("responseData", responseData);
+          setPictureList(responseData.pictureList);  // 그림 목록 저장
+          setPictureImg(responseData.pictureList[0]?.imageUrl);  // 첫 번째 이미지
+          setAnalysisResult(responseData.pictureList[0]?.content);  // 첫 번째 컨텐츠
+          setPictureType(responseData.pictureList[0]?.pictureType); // 타입
+          setResultContent(responseData.result.content); // 종합 결과
         } else {
           throw new Error('No valid response data');
         }
@@ -148,7 +170,8 @@ function Result() {
     };
   
     fetchPictureDetails();
-  }, [jwtToken, pictureId,location.state]);  // 의존성 배열에 jwtToken과 pictureId 추가
+  }, [jwtToken, resultId, location.state]);  // 의존성 배열에 jwtToken과 pictureId 추가
+
   const handleTitleChange = (event) => {
     setTitle(event.target.value);
     validateTitle(event.target.value);
@@ -180,32 +203,40 @@ function Result() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${jwtToken}`,
         },
-        body: JSON.stringify({ id: pictureId, title: title }),
+        body: JSON.stringify({ id: resultId, title: title }),
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      if (response.ok) {
+        console.log("제목 저장 성공: ", response);
       }
     } catch (error) {
-      console.error('Error updating title:', error);
+      console.error('제목 저장 실패:', error);
     }
-    setIsEditing(false);
+    //setIsEditing(false);
   };
 
   const handleEdit = async () => {
     setIsEditing(true);  // 편집 모드 종료
   };
   
-  // Next 버튼 클릭 시
+  // Next 버튼 클릭 시 다음 그림과 내용 보여주기
   const handleNextClick = () => {
     if (currentStep < totalSteps - 1) {
-      setCurrentStep((prevStep) => prevStep + 1); // 다음 단계로 이동
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      setPictureImg(pictureList[nextStep]?.imageUrl); // 다음 이미지로 변경
+      setAnalysisResult(pictureList[nextStep]?.content); // 다음 컨텐츠로 변경
+      setPictureType(pictureList[nextStep]?.pictureType); // 다음 그림 타입으로 변경
     }
   };
 
-  // Previous 버튼 클릭 시
+  // Previous 버튼 클릭 시 이전 그림과 내용 보여주기
   const handlePrevClick = () => {
     if (currentStep > 0) {
-      setCurrentStep((prevStep) => prevStep - 1); // 이전 단계로 이동
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      setPictureImg(pictureList[prevStep]?.imageUrl); // 이전 이미지로 변경
+      setAnalysisResult(pictureList[prevStep]?.content); // 이전 컨텐츠로 변경
+      setPictureType(pictureList[prevStep]?.pictureType); // 이전 그림 타입으로 변경
     }
   };
 
@@ -224,7 +255,7 @@ function Result() {
       <Wrapper>
         <DrawingSection>
           <TopContainer>
-            <Title>&ldquo;집&rdquo; 그림에 대한 검사 결과</Title>
+            <Title>&ldquo;{pictureType}&rdquo; 그림에 대한 검사 결과</Title>
             {!isMobile && currentStep === totalSteps - 1 && (
               <InfoContainer>
                 <LookContainer onClick={() => handleModalOpen(homeImage)}>
@@ -253,10 +284,10 @@ function Result() {
             {isMobile && currentStep === totalSteps - 1 ? (
             // 모바일 규격에서 이미지 슬라이드
               <ImageContainer>
-                <StyledImage src={pictures[slideshowIndex]} alt="Slideshow Image" />
+                <StyledImage src={pictureList[slideshowIndex]?.imageUrl || pictureList[0]?.imageUrl} alt="Slideshow Image" />
               </ImageContainer>
             ) : (
-              <StyledImage src={pictures[currentStep]} alt="Drawing for Analysis" />
+              <StyledImage src={pictureImg} alt="Drawing for Analysis" />
             )}
             <NextBtn onClick={handleNextClick} disabled={currentStep === totalSteps - 1}>
               <img
@@ -281,7 +312,7 @@ function Result() {
                 value={title}
                 onChange={handleTitleChange}
                 placeholder="그림의 제목을 입력하세요"
-                readOnly={!isEditing}
+                // readOnly={!isEditing}
                 isError={error.length > 0}
               />
             </TitleSection>
@@ -290,7 +321,7 @@ function Result() {
                 
           {/* <AnalysisResult>{analysisResult}</AnalysisResult> */}
       
-          <ResultContent/>
+          <ResultContent analysisResult={currentStep === totalSteps - 1 ? resultContent : analysisResult}/>
           <ButtonBox>
             <MainButtonBox >
               <MainButton onClick={handleMainClick}>메인페이지로 이동</MainButton>

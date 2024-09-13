@@ -186,7 +186,7 @@ const ListWrapper = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: center; // 데이터 없을때 이미지 가운데 정렬
+  align-items: flex-start; // 데이터 있을 때 왼쪽 정렬
   gap: 2rem;
   overflow: auto;
   height: 100%;
@@ -349,7 +349,7 @@ const MyPage = () => {
 
   // 항목 클릭 시, 해당 항목 결과 페이지로 이동
   const moveToList = (id, title) => {
-    navigate('/result', { state: { response: { pictureDto: { id: id, title: title } },fromMyPage:true } });
+    navigate('/result', { state: { response: { result: { id: id, title: title } },fromMyPage:true } });
   };
  
   // 시간 띄우기
