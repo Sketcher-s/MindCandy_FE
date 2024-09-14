@@ -1,0 +1,10 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 세 번째 사각형 - 가장 밑에 위치 -->
+  <rect x="18" y="18" width="372" height="259" rx="5" fill="#E0E1E9" stroke="#E0E1E9" stroke-width="1.2" opacity="0.8"/>
+
+  <!-- 두 번째 사각형 - 중간에 위치 -->
+  <rect x="9" y="9" width="372" height="259" rx="5" fill="#F3F3F6" stroke="#E0E1E9" stroke-width="1.2" opacity="0.9"/>
+
+  <!-- 첫 번째 사각형 - 가장 위에 위치 -->
+  <rect x="0" y="0" width="372" height="259" rx="5" fill="#F3F3F6" stroke="#E0E1E9" stroke-width="1.2"/>
+</svg>

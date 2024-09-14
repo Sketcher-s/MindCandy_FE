@@ -201,6 +201,11 @@ function InputPhoto() {
       if (response.ok) {
         const data = await response.json();
         console.log("검사 요청 성공:", data);
+        const resultId = data.result.id;
+        console.log("resultId: ", resultId);
+        Navigate("/result", {
+          state: { resultId }  // state로 resultId 값을 전달
+        });
       } else {
         console.error("검사 요청 실패:", await response.text());
       }
