@@ -33,6 +33,8 @@ function Result() {
   const [isMobile, setIsMobile] = useState(false); // 모바일 규격 감지
   const [slideshowIndex, setSlideshowIndex] = useState(0); // 슬라이드 인덱스
   const pictures = [homeImage, treeImg, manImg, womanImg, homeImage];
+  const [pictureList, setPictureList] = useState([]); // 그림 리스트 관리
+
   // 그림 이동 버튼
   const totalSteps = pictures.length;; // List의 총 갯수
   const [currentStep, setCurrentStep] = useState(0); // 현재 선택된 페이지 (0부터 시작)
@@ -117,6 +119,7 @@ function Result() {
   //   validateTitle(title);  // 초기 렌더링 시 제목의 유효성을 검사합니다.
   // }, []);  // 의존성 배열을 비워 컴포넌트 마운트 시 한 번만 실행되도록 합니다.
   
+  // 결과 상세 조회
   useEffect(() => {
     const fetchPictureDetails = async () => {
       if (!jwtToken) {
@@ -135,13 +138,13 @@ function Result() {
           throw new Error('Network response was not ok');
         }
   
-        const responseData = await response.json();
-        if (responseData && responseData.pictureDto) {
-          setImage(responseData.pictureDto.imageUrl);
-          console.log('Get response:', responseData);  // 성공 응답 로깅
+        const responseData = response.data;
+        if (responseData && responseData.pictureList) {
+          setPictureList(responseData.pictureList); // 그림 목록 설정
         } else {
           throw new Error('No valid response data');
         }
+
       } catch (error) {
         console.error('데이터받아오는거 결과값', error);  // 오류 로깅
       }
@@ -149,6 +152,7 @@ function Result() {
   
     fetchPictureDetails();
   }, [jwtToken, pictureId,location.state]);  // 의존성 배열에 jwtToken과 pictureId 추가
+
   const handleTitleChange = (event) => {
     setTitle(event.target.value);
     validateTitle(event.target.value);
@@ -224,14 +228,14 @@ function Result() {
       <Wrapper>
         <DrawingSection>
           <TopContainer>
-            <Title>&ldquo;집&rdquo; 그림에 대한 검사 결과</Title>
+            <Title>&ldquo;{pictureList[currentStep]?.pictureType}&rdquo; 그림에 대한 검사 결과</Title>
             {!isMobile && currentStep === totalSteps - 1 && (
               <InfoContainer>
                 <LookContainer onClick={() => handleModalOpen(homeImage)}>
                   <LookImg src={home} />집
                 </LookContainer>
                 <LookContainer onClick={() => handleModalOpen(treeImg)}>
-                  <LookImg src={tree} />나무
+                  <LookImg src={tree} />나무rlt
                 </LookContainer>
                 <LookContainer onClick={() => handleModalOpen(manImg)}>
                   <LookImg src={man} />남자 사람
@@ -256,7 +260,7 @@ function Result() {
                 <StyledImage src={pictures[slideshowIndex]} alt="Slideshow Image" />
               </ImageContainer>
             ) : (
-              <StyledImage src={pictures[currentStep]} alt="Drawing for Analysis" />
+              <StyledImage src={pictureList[currentStep]?.imageUrl || ''} alt="Drawing for Analysis" />
             )}
             <NextBtn onClick={handleNextClick} disabled={currentStep === totalSteps - 1}>
               <img
@@ -290,7 +294,7 @@ function Result() {
                 
           {/* <AnalysisResult>{analysisResult}</AnalysisResult> */}
       
-          <ResultContent/>
+          <ResultContent analysisResult={pictureList[currentStep]?.content || '결과 정보 없음'} />
           <ButtonBox>
             <MainButtonBox >
               <MainButton onClick={handleMainClick}>메인페이지로 이동</MainButton>
