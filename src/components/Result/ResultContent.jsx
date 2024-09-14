@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { theme } from '../../theme';
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 function ResultContent({analysisResult}) {
   //const [analysisResult, setAnalysisResult] = useState('');
@@ -10,6 +11,12 @@ function ResultContent({analysisResult}) {
     htp: false,
     analysis: false,
   });
+  // const [results, setResults] = useState({
+  //   home: '',
+  //   tree: '',
+  //   person: '',
+  //   summary: '',
+  // });
   // const [results, setResults] = useState({
   //   home: '',
   //   tree: '',

@@ -135,6 +135,7 @@ function Result() {
   //   validateTitle(title);  // 초기 렌더링 시 제목의 유효성을 검사합니다.
   // }, []);  // 의존성 배열을 비워 컴포넌트 마운트 시 한 번만 실행되도록 합니다.
   
+  // 결과 상세 조회
   useEffect(() => {
     const fetchPictureDetails = async () => {
       if (!jwtToken) {
@@ -164,6 +165,7 @@ function Result() {
         } else {
           throw new Error('No valid response data');
         }
+
       } catch (error) {
         console.error('데이터받아오는거 결과값', error);  // 오류 로깅
       }
@@ -262,7 +264,7 @@ function Result() {
                   <LookImg src={home} />집
                 </LookContainer>
                 <LookContainer onClick={() => handleModalOpen(treeImg)}>
-                  <LookImg src={tree} />나무
+                  <LookImg src={tree} />나무rlt
                 </LookContainer>
                 <LookContainer onClick={() => handleModalOpen(manImg)}>
                   <LookImg src={man} />남자 사람

@@ -1,10 +1,10 @@
-import {atom} from 'recoil';
+import { atom } from 'recoil';
 import { recoilPersist } from 'recoil-persist';
 
 export const countState = atom({
-key: 'countState',
-default: 0,
-})
+  key: 'countState',
+  default: 0,
+});
  
 //그림그리기 페이지 
 // export const canvasSizeState = atom({
@@ -18,13 +18,13 @@ default: 0,
 //   });
 
 // 로그인 지속
-const {persistAtom} = recoilPersist();
+const { persistAtom } = recoilPersist();
 
 // 로그인
 export const LoginState = atom({
   key: 'LoginState',
   default: false,
-  effects_UNSTABLE: [persistAtom]
+  effects_UNSTABLE: [persistAtom],
 });
 
 // 사이드바
