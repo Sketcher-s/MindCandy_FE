@@ -82,8 +82,8 @@ function Result() {
       return;
     }
     //Navigate('/mypage', { state: { resultId, title } });
-    console.log("제목: ", title);
-    console.log("id: ", resultId);
+    console.log('제목: ', title);
+    console.log('id: ', resultId);
     if (!jwtToken) {
       console.error('토큰오류임');
       return;
@@ -95,22 +95,22 @@ function Result() {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${jwtToken}`,
-          }
-        }
+          },
+        },
       );
       // 제목 수정 후 서버에서 최신 데이터 다시 가져오기
-    const updatedResponse = await axios.get(`https://dev.catchmind.shop/api/picture/${resultId}`, {
-      headers: {
-        'Authorization': `Bearer ${jwtToken}`,
-      }
-    });
+      const updatedResponse = await axios.get(`https://dev.catchmind.shop/api/picture/${resultId}`, {
+        headers: {
+          'Authorization': `Bearer ${jwtToken}`,
+        },
+      });
 
-    const updatedData = updatedResponse.data;
-    setTitle(updatedData.result.title);  // 업데이트된 제목 반영
+      const updatedData = updatedResponse.data;
+      setTitle(updatedData.result.title);  // 업데이트된 제목 반영
 
-    // 마이페이지로 이동 (상태 전달 없이 서버에서 데이터 새로 불러오도록)
-    Navigate('/mypage', { state: { resultId}});
-      console.log("제목 저장: ", response);
+      // 마이페이지로 이동 (상태 전달 없이 서버에서 데이터 새로 불러오도록)
+      Navigate('/mypage', { state: { resultId } });
+      console.log('제목 저장: ', response);
     } catch (error) {
       console.error('제목 저장 실패:', error);
     }
@@ -130,10 +130,6 @@ function Result() {
     }
   }, [location.state]);
 
-  
-  // useEffect(() => {
-  //   validateTitle(title);  // 초기 렌더링 시 제목의 유효성을 검사합니다.
-  // }, []);  // 의존성 배열을 비워 컴포넌트 마운트 시 한 번만 실행되도록 합니다.
   
   // 결과 상세 조회
   useEffect(() => {
@@ -156,7 +152,7 @@ function Result() {
   
         const responseData = await response.json();
         if (responseData && responseData.pictureList) {
-          console.log("responseData", responseData);
+          console.log('responseData', responseData);
           setPictureList(responseData.pictureList);  // 그림 목록 저장
           setPictureImg(responseData.pictureList[0]?.imageUrl);  // 첫 번째 이미지
           setAnalysisResult(responseData.pictureList[0]?.content);  // 첫 번째 컨텐츠
@@ -192,43 +188,15 @@ function Result() {
     }
   };
   
-
-  const handleSave = async () => {
-    if (!jwtToken) {
-      console.error('토큰오류임');
-      return;
-    }
-    try {
-      const response = await fetch('https://dev.catchmind.shop/api/picture/title', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify({ id: resultId, title: title }),
-      });
-      if (response.ok) {
-        console.log("제목 저장 성공: ", response);
-      }
-    } catch (error) {
-      console.error('제목 저장 실패:', error);
-    }
-    //setIsEditing(false);
-  };
-
-  const handleEdit = async () => {
-    setIsEditing(true);  // 편집 모드 종료
-  };
-  
   // Next 버튼 클릭 시 다음 그림과 내용 보여주기
   const handleNextClick = () => {
     if (currentStep < totalSteps - 1) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
-      setPictureImg(pictureList[nextStep]?.imageUrl); // 다음 이미지로 변경
-      setAnalysisResult(pictureList[nextStep]?.content); // 다음 컨텐츠로 변경
-      setPictureType(pictureList[nextStep]?.pictureType); // 다음 그림 타입으로 변경
-    }
+      setPictureImg(pictureList[nextStep]?.imageUrl || pictureList[0]?.imageUrl); // 맨 마지막엔 첫 이미지로
+      setAnalysisResult(pictureList[nextStep]?.content || pictureList[0]?.content); // 맨 마지막엔 첫 번째 컨텐츠로
+      setPictureType(pictureList[nextStep]?.pictureType || '종합'); // 타입도 첫 번째로
+    } 
   };
 
   // Previous 버튼 클릭 시 이전 그림과 내용 보여주기
@@ -243,8 +211,8 @@ function Result() {
   };
 
   // 모달을 여는 함수
-  const handleModalOpen = (image) => {
-    setModalImage(image);
+  const handleModalOpen = (index) => {
+    setModalImage(pictureList[index].imageUrl);
   };
 
   // 모달을 닫는 함수
@@ -260,16 +228,16 @@ function Result() {
             <Title>&ldquo;{pictureType}&rdquo; 그림에 대한 검사 결과</Title>
             {!isMobile && currentStep === totalSteps - 1 && (
               <InfoContainer>
-                <LookContainer onClick={() => handleModalOpen(homeImage)}>
+                <LookContainer onClick={() => handleModalOpen(0)}>
                   <LookImg src={home} />집
                 </LookContainer>
-                <LookContainer onClick={() => handleModalOpen(treeImg)}>
-                  <LookImg src={tree} />나무rlt
+                <LookContainer onClick={() => handleModalOpen(1)}>
+                  <LookImg src={tree} />나무
                 </LookContainer>
-                <LookContainer onClick={() => handleModalOpen(manImg)}>
+                <LookContainer onClick={() => handleModalOpen(2)}>
                   <LookImg src={man} />남자 사람
                 </LookContainer>
-                <LookContainer onClick={() => handleModalOpen(womanImg)}>
+                <LookContainer onClick={() => handleModalOpen(3)}>
                   <LookImg src={woman} />여자 사람
                 </LookContainer>
               </InfoContainer>
@@ -289,7 +257,9 @@ function Result() {
                 <StyledImage src={pictureList[slideshowIndex]?.imageUrl || pictureList[0]?.imageUrl} alt="Slideshow Image" />
               </ImageContainer>
             ) : (
-              <StyledImage src={pictureImg} alt="Drawing for Analysis" />
+              <ImageContainer>
+                <StyledImage src={pictureImg} alt="Drawing for Analysis" />
+              </ImageContainer>
             )}
             <NextBtn onClick={handleNextClick} disabled={currentStep === totalSteps - 1}>
               <img
@@ -475,14 +445,19 @@ const TitleInput = styled.input`
 const ImageContainer = styled.div`
   display: flex;
   width: 80%;
+  height: 30rem;
   justify-content: center;
-  max-height: 11.6rem;
   background-color: #F3F3F6;
+  ${theme.media.mobile`
+    max-height: 11.6rem;
+  `}
 `;
 
 const StyledImage = styled.img`
-  max-width: 75%;
-  max-height: 80%;
+display: flex;
+  max-width: 80%;
+  max-height: 100%;
+  //object-fit: contain; // 이미지 비율을 유지하면서 컨테이너에 맞춰 조정
    ${theme.media.mobile`
     font-size: 0.9rem;
     max-height: 11.6rem;

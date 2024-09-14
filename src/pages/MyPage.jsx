@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { LoginState } from '../recoil/recoilState';
 import noneData from '../assets/mypage/noneData.svg';
+import listMy from '../assets/mypage/listMy.svg';
 
 // 주요 컨테이너
 const MyPageContainer = styled.div`
@@ -209,11 +210,39 @@ const ListWrapper = styled.div`
 // 항목 컨테이너
 const EntryContainer = styled.div`
   display: flex;
-  flex-direction: column;
+  width: 100%;
   justify-content: flex-start;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.625rem;
   cursor: pointer;
+`;
+
+// 리스트 사진
+const EntryImage = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 25%;
+  height: 80%;
+  background-image: url(${listMy});
+  background-size: 100% 100%;  // 배경 이미지가 부모 영역을 채우도록 설정
+  background-repeat: no-repeat;  // 배경 이미지가 반복되지 않도록 설정
+`;
+
+const ListImage = styled.img`
+  display: flex;
+  justify-content: center;
+  margin-top: 2%;
+  width: 50%;
+  height: 80%;
+  object-fit: contain;  // 이미지가 부모 영역 내에 맞춰서 렌더링되도록 설정
+`;
+
+const EntryCol = styled.div`
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.625rem;
 `;
 
 // 항목 텍스트
@@ -399,8 +428,13 @@ const MyPage = () => {
             <ListWrapper ref={listRef}>
               {sortedData.map((item, index) => (
                 <EntryContainer key={index} onClick={() => moveToList(item.id, item.title)}>
-                  <EntryText>{item.title || '제목을 입력하세요.'}</EntryText>
-                  <EntryDate>{formatDate(item.createdAt)}</EntryDate>
+                  <EntryImage>
+                    <ListImage src={item.replaceImageUrl}/>
+                  </EntryImage>
+                  <EntryCol>
+                    <EntryText>{item.title || formatDate(item.createdAt)}</EntryText>
+                    <EntryDate>{formatDate(item.createdAt)}</EntryDate>
+                  </EntryCol>
                 </EntryContainer>
               ))}
               {sortedData?.length === 0 && <BeforeList src={noneData}/>}
