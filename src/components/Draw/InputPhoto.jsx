@@ -374,14 +374,14 @@ const OuterContainer = styled.div`
 const InnerContainer = styled.div`
   width: 40.25rem; //644px;
   // height: 61.815rem; //477px;
-  height: 85vh; // 뷰포트의 전체 높이
+  height: 110vh; // 뷰포트의 전체 높이
   padding-top: 2.5rem; //40px;
   padding-bottom: 2.5rem; //40px;
   justify-content: center;
   display: flex;
   background: white;
   border-radius: 0.625rem; //10px;
-  margin-top: 1.875rem;
+  margin-top: 15rem;
   margin-bottom: 1.875rem;
 
   ${theme.media.mobile`
