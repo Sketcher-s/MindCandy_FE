@@ -355,10 +355,6 @@ function InputPhoto() {
   );
 }
 
-InputPhoto.propTypes = {
-  imgFile: PropTypes.instanceOf(File),
-};
-
 export default InputPhoto;
 
 // 스타일 컴포넌트 정의
