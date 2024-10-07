@@ -90,12 +90,21 @@ function ResultContent({analysisResult}) {
   
   return (
     <Resultcontent>
-      <SectionContent>{parsedResults.map((section, index) => (
-        <div key={index} style={{ marginBottom: '16px' }}>
-          <p style={{ fontWeight: 'bold' }}>{`[${section.keyword}]`}</p>
-          <p>{section.content}</p>
-        </div>
-      ))}</SectionContent>
+       {/* parsedResults가 비어 있으면 전체 analysisResult를 렌더링 */}
+    {parsedResults.length > 0 ? (
+      <SectionContent>
+        {parsedResults.map((section, index) => (
+          <div key={index} style={{ marginBottom: '16px' }}>
+            <p style={{ fontWeight: 'bold' }}>{`[${section.keyword}]`}</p>
+            <p>{section.content}</p>
+          </div>
+        ))}
+      </SectionContent>
+    ) : (
+      <SectionContent>
+        <p>{analysisResult}</p> {/* parsedResults가 없을 때 analysisResult를 그대로 렌더링 */}
+      </SectionContent>
+    )}
       <Accordion>
         <AccordionHeader onClick={() => toggleSection('htp')}>
             HTP 그림 검사 유의사항
