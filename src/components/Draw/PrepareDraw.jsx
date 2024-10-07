@@ -177,11 +177,10 @@ const Container = styled.div`
   background: white;
   overflow: auto;
   ${theme.media.mobile`
-  height: 93vh;
+  height: 80vh;
 `}
 
   ${theme.media.desktop`
-  height: 93vh;
 
 `}
 `;

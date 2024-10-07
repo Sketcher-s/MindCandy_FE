@@ -56,6 +56,12 @@ function InputPhoto() {
   const [jwtToken, setjwtToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // 시간 관련 상태
+  const [startHours, setStartHours] = useState("");
+  const [startMinutes, setStartMinutes] = useState("");
+  const [endHours, setEndHours] = useState("");
+  const [endMinutes, setEndMinutes] = useState("");
+
   // 파일이 선택되었을 때 처리하는 함수
   const handleFileChange = (pictureType) => (event) => {
     const file = event.target.files[0]; // 사용자가 선택한 파일
@@ -151,10 +157,72 @@ function InputPhoto() {
     }
   };
 
+  // // 시작 시간과 종료 시간을 저장할 상태 정의
+  // const [startTime, setStartTime] = useState(""); // 시작 시간 저장
+  // const [endTime, setEndTime] = useState(""); // 종료 시간 저장
+
+  // // 시간 관련 상태
+  // const [hours, setHours] = useState("");
+  // const [minutes, setMinutes] = useState("");
+
+  // 시간 유효성 검사 함수
+  const handleHoursChange = (setter) => (e) => {
+    const value = e.target.value;
+    if (
+      /^\d{0,2}$/.test(value) &&
+      parseInt(value) >= 0 &&
+      parseInt(value) <= 23
+    ) {
+      setter(value);
+    }
+  };
+
+  const handleMinutesChange = (setter) => (e) => {
+    const value = e.target.value;
+    if (
+      /^\d{0,2}$/.test(value) &&
+      parseInt(value) >= 0 &&
+      parseInt(value) <= 59
+    ) {
+      setter(value);
+    }
+  };
+
+  // 소비된 시간 계산
+  const calculateConsumedTime = () => {
+    const start = new Date();
+    start.setHours(parseInt(startHours));
+    start.setMinutes(parseInt(startMinutes));
+
+    const end = new Date();
+    end.setHours(parseInt(endHours));
+    end.setMinutes(parseInt(endMinutes));
+
+    const diffMs = end - start;
+    if (diffMs < 0) {
+      console.error("종료 시간이 시작 시간보다 이릅니다.");
+      return null;
+    }
+    const diffMins = Math.floor(diffMs / 60000); // 밀리초를 분으로 변환
+    const hours = Math.floor(diffMins / 60); // 시간을 계산
+    const minutes = diffMins % 60; // 분을 계산
+
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}`;
+  };
+
   // 모든 이미지 파일을 모아서 배열로 서버로 전송하는 함수
   const handleSubmit = async () => {
     if (!jwtToken) {
       console.error("인증권한 없음");
+      return;
+    }
+
+    const consumedTime = calculateConsumedTime();
+    if (!consumedTime) {
+      console.error("시간 계산에 오류가 있습니다.");
       return;
     }
 
@@ -174,7 +242,8 @@ function InputPhoto() {
         pictureType: item.pictureType,
         value: item.value, // 여기서 'string' 대신 실제로 서버에 적합한 문자열 값을 넣으세요
       })),
-      requiredTime: new Date().toISOString(),
+      // requiredTime: new Date().toISOString(),
+      consumedTime,
     };
 
     // requestData를 JSON 형식으로 변환하여 FormData에 추가
@@ -204,7 +273,7 @@ function InputPhoto() {
         const resultId = data.result.id;
         console.log("resultId: ", resultId);
         Navigate("/result", {
-          state: { resultId }  // state로 resultId 값을 전달
+          state: { resultId }, // state로 resultId 값을 전달
         });
       } else {
         console.error("검사 요청 실패:", await response.text());
@@ -330,8 +399,56 @@ function InputPhoto() {
             <Timer>
               <SSBox>
                 <StartNStop>시작</StartNStop>
+                <TimeContainer>
+                  <input
+                    type="text"
+                    value={startHours}
+                    onChange={handleHoursChange(setStartHours)}
+                    placeholder="00" // 시간 입력 필드
+                    maxLength={2} // 최대 2자리 숫자만 입력 가능
+                    style={{
+                      color: "#66676e",
+                      textAlign: "center",
+                      fontFamily: "Pretendard-Regular",
+                      fontSize: "1rem",
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      lineHeight: "150%",
+                      width: "4rem",
+                      height: "2.75rem",
+                      borderRadius: "0.25rem",
+                      backgroundColor: "#f3f3f6",
+                      border: "none",
+                      marginRight: "0.5rem",
+                    }}
+                  />
+                  {/* ':' 표시 */}
+                  <span style={{ fontSize: "1rem", fontWeight: 500 }}>:</span>
+                  {/* 분 입력 */}
+                  <input
+                    type="text"
+                    value={startMinutes}
+                    onChange={handleMinutesChange(setStartMinutes)}
+                    placeholder="00" // 분 입력 필드
+                    maxLength={2} // 최대 2자리 숫자만 입력 가능
+                    style={{
+                      color: "#66676e",
+                      textAlign: "center",
+                      fontFamily: "Pretendard-Regular",
+                      fontSize: "1rem",
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      lineHeight: "150%",
+                      width: "4rem",
+                      height: "2.75rem",
+                      borderRadius: "0.25rem",
+                      backgroundColor: "#f3f3f6",
+                      border: "none",
+                      marginLeft: "0.5rem",
+                    }}
+                  />
+                </TimeContainer>
               </SSBox>
-              <TimeContainer></TimeContainer>
             </Timer>
 
             <Timer>
@@ -341,8 +458,58 @@ function InputPhoto() {
             <Timer>
               <SSBox>
                 <StartNStop>종료</StartNStop>
+                <TimeContainer>
+                  <input
+                    type="text"
+                    value={endHours}
+                    onChange={handleHoursChange(setEndHours)}
+                    placeholder="00" // 시간 입력 필드
+                    maxLength={2} // 최대 2자리 숫자만 입력 가능
+                    style={{
+                      color: "#66676e",
+                      textAlign: "center",
+                      fontFamily: "Pretendard-Regular",
+                      fontSize: "1rem",
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      lineHeight: "150%",
+                      width: "4rem",
+                      height: "2.75rem",
+                      borderRadius: "0.25rem",
+                      backgroundColor: "#f3f3f6",
+                      border: "none",
+                      marginRight: "0.5rem",
+                    }}
+                  />
+
+                  {/* ':' 표시 */}
+                  <span style={{ fontSize: "1rem", fontWeight: 500 }}>:</span>
+
+                  {/* 분 입력 */}
+                  <input
+                    type="text"
+                    value={endMinutes}
+                    onChange={handleMinutesChange(setEndMinutes)}
+                    placeholder="00" // 분 입력 필드
+                    maxLength={2} // 최대 2자리 숫자만 입력 가능
+                    style={{
+                      color: "#66676e",
+                      textAlign: "center",
+                      fontFamily: "Pretendard-Regular",
+                      fontSize: "1rem",
+                      fontStyle: "normal",
+                      fontWeight: 500,
+                      lineHeight: "150%",
+                      width: "4rem",
+                      height: "2.75rem",
+                      borderRadius: "0.25rem",
+                      backgroundColor: "#f3f3f6",
+                      border: "none",
+                      marginLeft: "0.5rem",
+                    }}
+                  />
+                </TimeContainer>
               </SSBox>
-              <TimeContainer></TimeContainer>
             </Timer>
           </TimerBox>
 
@@ -369,26 +536,47 @@ const OuterContainer = styled.div`
   gap: 1.875rem; //30px;
   display: flex;
   background: #f3f3f6;
+
+    ${theme.media.mobile`
+        margin-top: 2rem;
+          height: 100%; // 뷰포트의 전체 높이
+
+`}
+
 `;
 
 const InnerContainer = styled.div`
-  width: 40.25rem; //644px;
+  // width: 40.25rem; //644px;
   // height: 61.815rem; //477px;
-  height: 110vh; // 뷰포트의 전체 높이
+  // height: 110vh; // 뷰포트의 전체 높이
   padding-top: 2.5rem; //40px;
   padding-bottom: 2.5rem; //40px;
   justify-content: center;
   display: flex;
   background: white;
   border-radius: 0.625rem; //10px;
-  margin-top: 15rem;
   margin-bottom: 1.875rem;
 
   ${theme.media.mobile`
-  padding: 2rem 1rem;
-  width: 80%;
-  height:80%;
+  // width: 80%;
+  // height:93vh;
+  height:170%;
+  margin-top: 55rem;
+  margin-bottom: 10rem;
+  width: 21.125rem; //338px;
 
+`}
+
+ ${theme.media.desktop`
+  margin-top: 13rem;
+  padding: 1.625rem;
+  width: 40.25rem; //644px;
+  height: 110vh; // 뷰포트의 전체 높이
+`}
+
+ ${theme.media.tablet`
+  margin-top: 3rem;
+  padding: 1.625rem;
 `}
 `;
 
@@ -414,7 +602,7 @@ const Text = styled.text`
   margin-bottom: 0.625rem;
 
   ${theme.media.mobile`
-    font-size: 0.875rem;
+    font-size: 1.375rem; //22px;
   `}
 `;
 
@@ -458,7 +646,7 @@ const Row = styled.div`
 
   ${theme.media.mobile`
 
-      flex-direction: column;
+    flex-direction: column;
 `}
 `;
 
@@ -532,7 +720,7 @@ const And = styled.div`
   line-height: 150%; /* 24px */
   padding-right: 0.625rem;
   padding-left: 0.625rem;
-  padding-top: 1.625rem;
+  padding-top: 0.5rem;
 
   ${theme.media.mobile`
 
@@ -549,7 +737,6 @@ const OneBox = styled.div`
 
   ${theme.media.mobile`
 
-  
 `}
 `;
 
@@ -577,13 +764,13 @@ const TimerBox = styled.div`
 
   ${theme.media.mobile`
 
-  
+    flex-direction: column;
+    padding : 8rem;
 `}
 `;
 
 const Timer = styled.div`
   ${theme.media.mobile`
-
   
 `}
 `;
@@ -601,7 +788,6 @@ const TimeContainer = styled.div`
 
   ${theme.media.mobile`
 
-  
 `}
 `;
 
@@ -609,7 +795,6 @@ const SSBox = styled.div`
   margin-bottom: 0.625rem;
 
   ${theme.media.mobile`
-
   
 `}
 `;

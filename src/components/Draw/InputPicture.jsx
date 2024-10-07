@@ -22,7 +22,7 @@ function InputPicture() {
   //모달
   const [isModalOpen, setModalOpen] = useState(false);
   //모달 표시 내용 관리
-  const [modalContent, setModalContent] = useState(null);
+  const [modalContent, setModalContent] = useState("");
 
   // useEffect를 사용하여 컴포넌트가 마운트될 때 토큰을 가져옵니다.
   useEffect(() => {
@@ -97,14 +97,6 @@ function InputPicture() {
   });
 
   const [imagePreviews, setImagePreviews] = useState({
-    HOUSE: null,
-    TREE: null,
-    MALE: null,
-    FEMALE: null,
-  });
-
-  // Base64로 인코딩된 이미지
-  const [base64Images, setBase64Images] = useState({
     HOUSE: null,
     TREE: null,
     MALE: null,
@@ -313,6 +305,7 @@ function InputPicture() {
         onSubmit={handleSubmit}
         handleRecognitionResponse={handleRecognitionResponse}
         setPreviewUrls={setPreviewUrls}
+        prevUrl={previewUrls}
       />
     </OuterContainer>
   );
