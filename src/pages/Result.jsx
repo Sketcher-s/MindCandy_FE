@@ -153,6 +153,7 @@ function Result() {
         const responseData = await response.json();
         if (responseData && responseData.pictureList) {
           console.log('responseData', responseData);
+          console.log("list: ", responseData.pictureList[0]);
           setPictureList(responseData.pictureList);  // 그림 목록 저장
           setPictureImg(responseData.pictureList[0]?.imageUrl);  // 첫 번째 이미지
           setAnalysisResult(responseData.pictureList[0]?.content);  // 첫 번째 컨텐츠

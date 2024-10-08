@@ -15,7 +15,7 @@ const NavbarMember = ({toggleSidebar}) => {
   const navigate= useNavigate();
   // 검사하기 이동
   const moveToReady = () => {
-    navigate('/preparedraw');
+    navigate('/preparePage');
   }
   // 마이페이지 이동
   const moveToMy = () => {
