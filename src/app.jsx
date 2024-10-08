@@ -27,9 +27,10 @@ const PageLayout = () => {
   const isResultPage = location.pathname === '/result';
   const isDraw = location.pathname === '/draw';
   const isInputPhoto = location.pathname === '/inputphoto';
+  const isPrepareDraw= location.pathname === '/prepareDraw';
 
   return (
-    <Container isMainPage={isMainPage} isInputPhoto={isInputPhoto} isResultPage={isResultPage} isDraw={isDraw}>
+    <Container isMainPage={isMainPage} isInputPhoto={isInputPhoto} isResultPage={isResultPage} isDraw={isDraw} isPrepareDraw={isPrepareDraw}>
       <RecoilRoot>
         <Navbar/>
             <Sidebar/>
@@ -68,7 +69,7 @@ function App() {
 export default App;
 
 const Container = styled.div`
-  height: ${(props) => (props.isMainPage || props.isPicPage || props.isResultPage || props.isInputPhoto ? 'auto' : '100vh')};
-  overflow-y: ${(props) => (props.isMainPage  || props.isPicPage || props.isResultPage || props.isInputPhoto ? 'auto' : 'hidden')};
+  height: ${(props) => (props.isMainPage || props.isPicPage || props.isResultPage || props.isInputPhoto || props.isPrepareDraw ? 'auto' : '100vh')};
+  overflow-y: ${(props) => (props.isMainPage  || props.isPicPage || props.isResultPage || props.isInputPhoto || props.isPrepareDraw ? 'auto' : 'hidden')};
   overflow-x: hidden;
 `;

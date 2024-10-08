@@ -36,7 +36,8 @@ const DrawModal = ({
   onSubmit,
   handleRecognitionResponse,
   setPreviewUrls, // 그림의 타입을 전달
-  pictureType
+  pictureType,
+  prevUrl,
 }) => {
   // 버튼 클릭했을 때 화면 이동
   const Navigate = useNavigate();
@@ -52,7 +53,7 @@ const DrawModal = ({
   const [color, setColor] = useState("black");
   //hover
   // const [isHovered, setIsHovered] = useState(false);
-  const [isButtonClicked, setIsButtonClicked] = useState(null);
+  const [isButtonClicked, setIsButtonClicked] = useState("Ppencil");
 
   const [hoverGpencil, setHoverGpencil] = useState(false);
   const [hoverGeraser, setHoverGeraser] = useState(false);
@@ -100,6 +101,29 @@ const DrawModal = ({
     };
   }, []);
 
+  useEffect(() => {
+    if (isOpen) {
+      console.log("Modal is open");
+      const imgData = prevUrl[content.toUpperCase()];
+      if (imgData) {
+        const img = new Image();
+        img.src = imgData;
+
+        img.onload = () => {
+          const canvas = signatureCanvasRef.current.getCanvas();
+          const context = canvas.getContext('2d');
+    
+          // 캔버스를 비우고, 이미지 크기 조정 후 그리기
+          context.clearRect(0, 0, canvas.width, canvas.height);
+          // 이미지의 크기를 조정하여 캔버스에 그리기
+          const scaleWidth = canvas.width;
+          const scaleHeight = canvas.height;
+          context.drawImage(img, 0, 0, scaleWidth, scaleHeight);
+        };
+      }
+    }
+    // 페이지 컴포넌트가 마운트되면 body 태그에 클래스를 추가
+  }, [isOpen]);
   // // 흰색 배경
   // useEffect(() => {
   //   // 캔버스 배경을 흰색으로 설정
@@ -228,12 +252,10 @@ const DrawModal = ({
 
   // 그림판 초기화: 펜 색상과 크기를 설정
   useEffect(() => {
-    if (signatureCanvasRef.current) {
       console.log("Default pencil is set");
       setColor("black"); // 펜 색상을 검정색으로 설정
       setPenSize(1); // 펜 크기를 1로 설정
       // 이후 필요한 추가 초기화 작업을 수행할 수 있습니다.
-    }
   }, []);
 
   useEffect(() => {
@@ -296,56 +318,59 @@ const DrawModal = ({
     };
   }, []);
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (signatureCanvasRef.current) {
-        const canvasElement = signatureCanvasRef.current.getCanvas(); // 실제 canvas 요소를 가져옵니다.
-        const ctx = canvasElement.getContext("2d"); // 이제 getContext를 호출할 수 있습니다.
 
-        // 임시 캔버스를 생성하고, 기존 캔버스의 내용을 임시 캔버스에 복사합니다.
-        const tempCanvas = document.createElement("canvas");
-        const tempCtx = tempCanvas.getContext("2d");
-        tempCanvas.width = canvasElement.width;
-        tempCanvas.height = canvasElement.height;
-        tempCtx.drawImage(canvasElement, 0, 0); // 기존 캔버스의 내용을 임시 캔버스에 복사
+  const handleResize = () => {
+    if (signatureCanvasRef.current) {
+      const canvasElement = signatureCanvasRef.current.getCanvas(); // 실제 canvas 요소를 가져옵니다.
+      const ctx = canvasElement.getContext("2d"); // 이제 getContext를 호출할 수 있습니다.
 
-        const screenWidth = window.innerWidth;
-        const screenHeight = window.innerHeight;
-        let newWidth, newHeight;
+      // 임시 캔버스를 생성하고, 기존 캔버스의 내용을 임시 캔버스에 복사합니다.
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
+      tempCanvas.width = canvasElement.width;
+      tempCanvas.height = canvasElement.height;
+      tempCtx.drawImage(canvasElement, 0, 0); // 기존 캔버스의 내용을 임시 캔버스에 복사
 
-        // 기존 캔버스의 이미지 데이터를 임시 변수에 저장
-        const tempImage = new Image();
-        tempImage.src = canvasElement.toDataURL(); // 이미지 데이터 URL 생성
+      const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
+      let newWidth, newHeight;
 
-        if (screenWidth < 768) {
-          newWidth = 200;
-          newHeight = 200;
-        } else if (768 <= screenWidth && screenWidth < 1500) {
-          newWidth = 300;
-          newHeight = 300;
-        } else {
-          newWidth = 500;
-          newHeight = 550;
-          if (newHeight > screenHeight * 0.5) {
-            newHeight = screenHeight * 0.5;
-            newWidth = newHeight * 1;
-          }
+      // 기존 캔버스의 이미지 데이터를 임시 변수에 저장
+      const tempImage = new Image();
+      tempImage.src = canvasElement.toDataURL(); // 이미지 데이터 URL 생성
+
+      if (screenWidth < 768) {
+        newWidth = 200;
+        newHeight = 200;
+      } else if (768 <= screenWidth && screenWidth < 1500) {
+        newWidth = 300;
+        newHeight = 300;
+      } else {
+        newWidth = 500;
+        newHeight = 550;
+        if (newHeight > screenHeight * 0.5) {
+          newHeight = screenHeight * 0.5;
+          newWidth = newHeight * 1;
         }
-
-        // 기존 캔버스의 이미지를 새로운 크기의 캔버스에 그리기
-        tempImage.onload = () => {
-          ctx.drawImage(tempImage, 0, 0, newWidth, newHeight); // 새로운 크기의 캔버스에 이미지 그리기
-        };
       }
 
-      // 그림 저장
-      if (signatureCanvasRef.current) {
-        const dataURL = signatureCanvasRef.current.toDataURL();
-        setCanvasData(dataURL);
-        setSavedSignatures([...savedSignatures, dataURL]);
-        localStorage.setItem("canvasData", dataURL); // 로컬 스토리지에 저장
-      }
-    };
+      // 기존 캔버스의 이미지를 새로운 크기의 캔버스에 그리기
+      tempImage.onload = () => {
+        ctx.drawImage(tempImage, 0, 0, newWidth, newHeight); // 새로운 크기의 캔버스에 이미지 그리기
+      };
+    }
+
+    // 그림 저장
+    if (signatureCanvasRef.current) {
+      const dataURL = signatureCanvasRef.current.toDataURL();
+      setCanvasData(dataURL);
+      setSavedSignatures([...savedSignatures, dataURL]);
+      localStorage.setItem("canvasData", dataURL); // 로컬 스토리지에 저장
+    }
+  };
+
+  useEffect(() => {
+    
 
     // 크기 변경 이벤트 리스너 등록
     window.addEventListener("resize", handleResize);
@@ -438,7 +463,7 @@ const DrawModal = ({
       }
 
       const blob = dataURLtoBlob(imageData);
-      console.log(blob);  // Blob 데이터 확인
+      console.log(blob); // Blob 데이터 확인
       const formData = new FormData();
       formData.append("file", blob, "image.png");
       formData.append("pictureType", JSON.stringify({ pictureType: "HOUSE" })); // pictureType을 JSON 객체로 추가
@@ -644,13 +669,13 @@ const DrawModal = ({
               </CanvasContainer>
               <Icon>
                 {/* WPencil 버튼 */}
-                {isButtonClicked !== "Gpencil" ? (
+                {isButtonClicked != "Gpencil" ? (
                   <WStyledWrapper>
                     <Gpencil
                       onMouseEnter={() => setHoverGpencil(true)}
                       onMouseLeave={() => setHoverGpencil(false)}
                       onClick={() => {
-                        handleClick("Gpencil");
+                        handleClick("Ppencil");
                         handleColorChange("black");
                         changePenSize(minPenSize);
                       }}
@@ -668,7 +693,7 @@ const DrawModal = ({
                 {hoverGpencil && <DrawStyle />}
 
                 {/* BEraser 버튼 */}
-                {isButtonClicked !== "Geraser" ? (
+                {isButtonClicked != "Geraser" ? (
                   <WStyledWrapper>
                     <Geraser
                       onMouseEnter={() => setHoverGeraser(true)}
@@ -692,7 +717,7 @@ const DrawModal = ({
                 {hoverGeraser && <EraseAllStyle />}
 
                 {/* BTrash 버튼 */}
-                {isButtonClicked !== "Gtrash" ? (
+                {isButtonClicked != "Gtrash" ? (
                   <WStyledWrapper>
                     <Gtrash
                       onMouseEnter={() => setHoverGtrash(true)}
@@ -734,8 +759,12 @@ const DrawModal = ({
 DrawModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  content: PropTypes.string, // content prop 타입 추가
-  handleSubmit: PropTypes.func, // props 타입 정의
+  content: PropTypes.node.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  handleRecognitionResponse: PropTypes.func.isRequired,
+  setPreviewUrls: PropTypes.func.isRequired,
+  pictureType: PropTypes.string.isRequired,
+  prevUrl: PropTypes.object.isRequired,
 };
 
 export default DrawModal;
@@ -743,7 +772,8 @@ export default DrawModal;
 const ModalContainer = styled.div`
   position: fixed;
   width: 100%;
-  height: 93%;
+  // height: 93%;
+  height: 110%;
   background: rgba(39, 40, 43, 0.3); // 전체 배경에 반투명 색상 적용
   display: flex;
   align-items: center;
