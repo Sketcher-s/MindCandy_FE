@@ -41,16 +41,35 @@ function InputPicture() {
     setModalOpen(false);
     // setModalContent(null); // 모달을 닫을 때 내용 초기화
   };
+ // Base64 데이터를 Blob으로 변환하는 함수
+  const base64ToBlob = (base64Data, contentType = "image/png") => {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+    return new Blob(byteArrays, { type: contentType });
+  };
 
   // Recognition에서 받은 파일 데이터를 저장하는 함수
   // const handleRecognitionResponse = (data, pictureType, base64Images) => {
   const handleRecognitionResponse = (data, pictureType, base64Images) => {
     console.log("콘솔에 base64 이미지 출력:", base64Images);
+    console.log("blob 데이터: ", data);
 
-    const imageBlob = data.file; // 서버 응답에서 파일이 포함된 부분
+    const base64Data = base64Images.split(",")[1]; // "data:image/png;base64," 부분 제거
+    const imageBlob = base64ToBlob(base64Data); // Base64 데이터를 Blob으로 변환
+    //const imageBlob = base64ToBlob(data); // 서버 응답에서 파일이 포함된 부분
     const file = new File([imageBlob], `${pictureType}.png`, {
       type: "image/png",
     });
+    console.log("blob 파일 객체로 변환: ", file);
 
     setImageFiles((prevFiles) => ({
       ...prevFiles,
@@ -61,7 +80,7 @@ function InputPicture() {
     const fileUrl = URL.createObjectURL(file);
     setPreviewUrls((prev) => ({
       ...prev,
-      [pictureType]: base64Images,
+      [pictureType]: fileUrl,
     }));
 
     setImagePreviews((prev) => ({
