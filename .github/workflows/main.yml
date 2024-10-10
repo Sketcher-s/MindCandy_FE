@@ -33,5 +33,14 @@ jobs:
         run: |
           aws s3 cp \
             --recursive \
+              --exclude ".git/*" \
+              --exclude ".github/*" \
+              --exclude ".vscode/*" \
+              --exclude ".env" \
+              --exclude "node_modules/*" \
+              --exclude ".gitignore" \
+              --exclude ".gitmessage.txt" \
+              --exclude ".prettierignore" \
+              --exclude ".DS_Store" \
             --region ap-northeast-2 \
             ./ s3://mindcandy-febucket # 버킷 이름으로 변경
