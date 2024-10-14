@@ -153,7 +153,6 @@ function Result() {
         const responseData = await response.json();
         if (responseData && responseData.pictureList) {
           console.log('responseData', responseData);
-          console.log("list: ", responseData.pictureList[0]);
           setPictureList(responseData.pictureList);  // 그림 목록 저장
           setPictureImg(responseData.pictureList[0]?.imageUrl);  // 첫 번째 이미지
           setAnalysisResult(responseData.pictureList[0]?.content);  // 첫 번째 컨텐츠
@@ -214,6 +213,7 @@ function Result() {
   // 모달을 여는 함수
   const handleModalOpen = (index) => {
     setModalImage(pictureList[index].imageUrl);
+    setPictureType(pictureList[index].pictureType);
   };
 
   // 모달을 닫는 함수
@@ -305,18 +305,18 @@ function Result() {
           </ButtonBox>
         </DrawingSection>
       </Wrapper>
-      {modalImage && <Modal image={modalImage} onClose={handleModalClose} />}
+      {modalImage && <Modal image={modalImage} onClose={handleModalClose} type={pictureType}/>}
     </div>
   );
 }
 export default Result;
 
 // 모달 컴포넌트
-const Modal = ({ image, onClose }) => {
+const Modal = ({ image, onClose, type }) => {
   return (
     <ModalWrapper onClick={onClose}>
       <ModalContent>
-        <ModalTitle>집</ModalTitle>
+        <ModalTitle>{type}</ModalTitle>
         <img src={image} alt="Modal" />
         <Button><ButtonText>닫기</ButtonText></Button>
       </ModalContent>

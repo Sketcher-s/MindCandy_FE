@@ -211,6 +211,7 @@ const ListWrapper = styled.div`
 const EntryContainer = styled.div`
   display: flex;
   width: 100%;
+  min-height: 30%;
   justify-content: flex-start;
   align-items: center;
   gap: 0.625rem;
@@ -221,18 +222,17 @@ const EntryContainer = styled.div`
 const EntryImage = styled.div`
   display: flex;
   justify-content: center;
-  width: 25%;
-  height: 80%;
+  align-items: center;
+  width: 20%;
+  height: 100%;
   background-image: url(${listMy});
-  background-size: 100% 100%;  // 배경 이미지가 부모 영역을 채우도록 설정
+  background-size: cover;  // 배경 이미지가 부모 영역을 채우도록 설정
   background-repeat: no-repeat;  // 배경 이미지가 반복되지 않도록 설정
 `;
 
 const ListImage = styled.img`
   display: flex;
-  justify-content: center;
-  margin-top: 2%;
-  width: 50%;
+  width: 60%;
   height: 80%;
   object-fit: contain;  // 이미지가 부모 영역 내에 맞춰서 렌더링되도록 설정
 `;
