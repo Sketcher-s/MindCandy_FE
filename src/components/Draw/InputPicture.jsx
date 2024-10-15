@@ -3,9 +3,12 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { theme } from "../../theme";
+import Loading from "../Draw/Loading";
 import { useRecoilState } from "recoil";
 import { LoginState } from "../../recoil/recoilState";
 import DrawModal from "./DrawModal"; // 위에서 만든 모달 컴포넌트를 import
+import { ReactComponent as Photochecktrue } from "../../assets/Draw/photochecktrue.svg";
+import { ReactComponent as Photocheckfalse } from "../../assets/Draw/photocheckfalse.svg";
 
 function InputPicture() {
   const Navigate = useNavigate();
@@ -30,6 +33,15 @@ function InputPicture() {
     setjwtToken(token);
   }, []);
 
+  useEffect(() => {
+    setIsButtonEnabled(
+      disabledImages[ContentType.HOUSE] &
+        disabledImages[ContentType.TREE] &
+        disabledImages[ContentType.MALE] &
+        disabledImages[ContentType.FEMALE]
+    );
+  }, [isModalOpen]);
+
   // 모달 열기
   const handleOpenModal = (content) => {
     setModalContent(content);
@@ -41,7 +53,7 @@ function InputPicture() {
     setModalOpen(false);
     // setModalContent(null); // 모달을 닫을 때 내용 초기화
   };
- // Base64 데이터를 Blob으로 변환하는 함수
+  // Base64 데이터를 Blob으로 변환하는 함수
   const base64ToBlob = (base64Data, contentType = "image/png") => {
     const byteCharacters = atob(base64Data);
     const byteArrays = [];
@@ -55,45 +67,6 @@ function InputPicture() {
       byteArrays.push(byteArray);
     }
     return new Blob(byteArrays, { type: contentType });
-  };
-
-  // Recognition에서 받은 파일 데이터를 저장하는 함수
-  // const handleRecognitionResponse = (data, pictureType, base64Images) => {
-  const handleRecognitionResponse = (data, pictureType, base64Images) => {
-    console.log("콘솔에 base64 이미지 출력:", base64Images);
-    console.log("blob 데이터: ", data);
-
-    const base64Data = base64Images.split(",")[1]; // "data:image/png;base64," 부분 제거
-    const imageBlob = base64ToBlob(base64Data); // Base64 데이터를 Blob으로 변환
-    //const imageBlob = base64ToBlob(data); // 서버 응답에서 파일이 포함된 부분
-    const file = new File([imageBlob], `${pictureType}.png`, {
-      type: "image/png",
-    });
-    console.log("blob 파일 객체로 변환: ", file);
-
-    setImageFiles((prevFiles) => ({
-      ...prevFiles,
-      [pictureType]: file,
-    }));
-
-    // 파일을 URL로 변환하여 미리보기 URL 생성
-    const fileUrl = URL.createObjectURL(file);
-    setPreviewUrls((prev) => ({
-      ...prev,
-      [pictureType]: fileUrl,
-    }));
-
-    setImagePreviews((prev) => ({
-      ...prev,
-      // [pictureType]: base64Images, // 그림 데이터를 미리보기 상태에 저장
-      [pictureType]: fileUrl, // 그림 데이터를 미리보기 상태에 저장
-    }));
-
-    // 추가된 부분: pictureRequestData 업데이트
-    setPictureRequestData((prevData) => [
-      ...prevData,
-      { pictureType, value: data.value }, // 'someValue'는 실제 데이터에 맞게 변경
-    ]);
   };
 
   //fileupload에서 받은 데이터를 다시 넣기 위한 부분
@@ -122,6 +95,54 @@ function InputPicture() {
     FEMALE: null,
   });
 
+  //사진 활성, 비활성을 위한 disabledImages 상태 추가
+  const [disabledImages, setDisabledImages] = useState({
+    HOUSE: false,
+    TREE: false,
+    MALE: false,
+    FEMALE: false,
+  });
+
+  // 버튼 활성화 상태를 관리할 useState 추가
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+
+  // Recognition에서 받은 파일 데이터를 저장하는 함수
+  const handleRecognitionResponse = (data, pictureType, base64Images) => {
+    console.log("콘솔에 base64 이미지 출력:", base64Images);
+    console.log("blob 데이터: ", data);
+    console.log(pictureType);
+
+    const base64Data = base64Images.split(",")[1]; // "data:image/png;base64," 부분 제거
+    const imageBlob = base64ToBlob(base64Data); // Base64 데이터를 Blob으로 변환
+    const file = new File([imageBlob], `${pictureType}.png`, {
+      type: "image/png",
+    });
+    console.log("blob 파일 객체로 변환: ", file);
+
+    setImageFiles((prevFiles) => ({
+      ...prevFiles,
+      [pictureType]: file,
+    }));
+
+    // 파일을 URL로 변환하여 미리보기 URL 생성
+    const fileUrl = URL.createObjectURL(file);
+    setPreviewUrls((prev) => ({
+      ...prev,
+      [pictureType]: fileUrl,
+    }));
+
+    setImagePreviews((prev) => ({
+      ...prev,
+      [pictureType]: fileUrl, // 그림 데이터를 미리보기 상태에 저장
+    }));
+
+    // 추가된 부분: pictureRequestData 업데이트
+    setPictureRequestData((prevData) => [
+      ...prevData,
+      { pictureType, value: data.value }, // 'someValue'는 실제 데이터에 맞게 변경
+    ]);
+  };
+
   // 모든 이미지 파일을 모아서 배열로 서버로 전송하는 함수
   const handleSubmit = async () => {
     if (!jwtToken) {
@@ -129,6 +150,7 @@ function InputPicture() {
       return;
     }
 
+    setIsLoading(true); //로딩 시작
     const formData = new FormData();
 
     // FormData에 파일 추가 (null이 아닌지 체크)
@@ -213,33 +235,64 @@ function InputPicture() {
     }
   };
 
-  const ContentType = {
-    HOUSE: "house",
-    TREE: "tree",
-    MALE: "male",
-    FEMALE: "female",
+  const handleDoneClick = () => {
+    const state = Navigate?.state || {}; // state에서 imageData 가져오기
+    const { imageData } = state;
+    console.log(imageData);
+    console.log("완료 버튼 클릭");
+    Navigate("/loading", { state: { imageData } });
+    handleSubmit(imageData); // 서버로 이미지 전송
   };
 
-  console.log(imageFiles);
+  const ContentType = {
+    HOUSE: "HOUSE",
+    TREE: "TREE",
+    MALE: "MALE",
+    FEMALE: "FEMALE",
+  };
 
   return (
     <OuterContainer>
+      {isLoading && (
+        <>
+          <Loading />
+        </>
+      )}
       <InnerContainer>
         <InnerWrapper>
           <OneBox>
             <Text>그림 그리기</Text>
+            <SubText>
+              집 - 나무 - 남자 사람 - 여자 사람 순서대로 그려주세요
+            </SubText>
             <PhotoBox>
-              <PutPhoto onClick={() => handleOpenModal(ContentType.HOUSE)}>
+              <PutPhoto
+                onClick={() => handleOpenModal(ContentType.HOUSE)}
+                disabled={!disabledImages[ContentType.HOUSE]} //비활성화 상태 전달
+                hasImage={!!imagePreviews[ContentType.HOUSE]} // 이미지가 있는지 여부 전달
+              >
                 {/* 이미지가 없을 때만 텍스트 표시 */}
                 {!imagePreviews.HOUSE && (
                   <PutPhotoText1>클릭하여 집을 그려주세요.</PutPhotoText1>
+                )}
+
+                {imagePreviews.HOUSE && (
+                  <>
+                    <IconOverlay>
+                      {disabledImages[ContentType.HOUSE] ? (
+                        <Photochecktrue width={24} height={24} /> // 비활성화된 경우 녹색 체크 표시
+                      ) : (
+                        <Photocheckfalse width={24} height={24} /> // 활성화된 경우 빨간 X 표시
+                      )}
+                    </IconOverlay>
+                  </>
                 )}
 
                 {/* 이미지 미리보기 */}
                 {imagePreviews.HOUSE && (
                   <img
                     src={previewUrls.HOUSE}
-                    alt="House Preview"
+                    alt="house Preview"
                     style={{
                       width: "17.5rem",
                       height: "17.5rem",
@@ -248,10 +301,24 @@ function InputPicture() {
                   />
                 )}
               </PutPhoto>
-              <PutPhoto onClick={() => handleOpenModal(ContentType.TREE)}>
+              <PutPhoto
+                onClick={() => handleOpenModal(ContentType.TREE)}
+                disabled={!disabledImages[ContentType.TREE]} //비활성화 상태 전달
+                hasImage={!!imagePreviews[ContentType.TREE]} // 이미지가 있는지 여부 전달
+              >
                 {/* 이미지가 없을 때만 텍스트 표시 */}
                 {!imagePreviews.TREE && (
                   <PutPhotoText1>클릭하여 나무을 그려주세요.</PutPhotoText1>
+                )}
+
+                {imagePreviews.TREE && (
+                  <IconOverlay>
+                    {disabledImages[ContentType.TREE] ? (
+                      <Photochecktrue width={24} height={24} /> // 비활성화된 경우 녹색 체크 표시
+                    ) : (
+                      <Photocheckfalse width={24} height={24} /> // 활성화된 경우 빨간 X 표시
+                    )}
+                  </IconOverlay>
                 )}
 
                 {/* 이미지 미리보기 */}
@@ -269,10 +336,24 @@ function InputPicture() {
               </PutPhoto>
             </PhotoBox>
             <PhotoBox>
-            <PutPhoto onClick={() => handleOpenModal(ContentType.MALE)}>
+              <PutPhoto
+                onClick={() => handleOpenModal(ContentType.MALE)}
+                disabled={!disabledImages[ContentType.MALE]} //비활성화 상태 전달
+                hasImage={!!imagePreviews[ContentType.MALE]} // 이미지가 있는지 여부 전달
+              >
                 {/* 이미지가 없을 때만 텍스트 표시 */}
                 {!imagePreviews.MALE && (
                   <PutPhotoText1>클릭하여 남자사람을 그려주세요.</PutPhotoText1>
+                )}
+
+                {imagePreviews.MALE && (
+                  <IconOverlay>
+                    {disabledImages[ContentType.MALE] ? (
+                      <Photochecktrue width={24} height={24} /> // 비활성화된 경우 녹색 체크 표시
+                    ) : (
+                      <Photocheckfalse width={24} height={24} /> // 활성화된 경우 빨간 X 표시
+                    )}
+                  </IconOverlay>
                 )}
 
                 {/* 이미지 미리보기 */}
@@ -288,10 +369,24 @@ function InputPicture() {
                   />
                 )}
               </PutPhoto>
-              <PutPhoto onClick={() => handleOpenModal(ContentType.FEMALE)}>
+              <PutPhoto
+                onClick={() => handleOpenModal(ContentType.FEMALE)}
+                disabled={!disabledImages[ContentType.FEMALE]} //비활성화 상태 전달
+                hasImage={!!imagePreviews[ContentType.FEMALE]} // 이미지가 있는지 여부 전달
+              >
                 {/* 이미지가 없을 때만 텍스트 표시 */}
                 {!imagePreviews.FEMALE && (
                   <PutPhotoText1>클릭하여 여자사람을 그려주세요.</PutPhotoText1>
+                )}
+
+                {imagePreviews.FEMALE && (
+                  <IconOverlay>
+                    {disabledImages[ContentType.FEMALE] ? (
+                      <Photochecktrue width={24} height={24} /> // 비활성화된 경우 녹색 체크 표시
+                    ) : (
+                      <Photocheckfalse width={24} height={24} /> // 활성화된 경우 빨간 X 표시
+                    )}
+                  </IconOverlay>
                 )}
 
                 {/* 이미지 미리보기 */}
@@ -310,8 +405,18 @@ function InputPicture() {
             </PhotoBox>
           </OneBox>
 
-          <DraButtonBox>
-            <DraButton onClick={handleSubmit}>검사 결과 보러가기</DraButton>
+          <DraButtonBox
+            style={{
+              backgroundColor: isButtonEnabled ? "#9386E0" : "#DDDDF7", // 버튼 색상 변경
+              cursor: isButtonEnabled ? "pointer" : "not-allowed",
+            }}
+          >
+            <DraButton
+              onClick={handleDoneClick}
+              disabled={!isButtonEnabled} // 버튼 활성화 여부 제어
+            >
+              검사 결과 보러가기
+            </DraButton>
           </DraButtonBox>
         </InnerWrapper>
       </InnerContainer>
@@ -325,6 +430,9 @@ function InputPicture() {
         handleRecognitionResponse={handleRecognitionResponse}
         setPreviewUrls={setPreviewUrls}
         prevUrl={previewUrls}
+        setDisabledImages={setDisabledImages}
+        disabledImages={disabledImages}
+        setIsButtonEnabled={setIsButtonEnabled}
       />
     </OuterContainer>
   );
@@ -386,7 +494,22 @@ const Text = styled.text`
   font-style: normal;
   font-weight: 700;
   line-height: 150%; /* 39px */
+
+  ${theme.media.mobile`
+    font-size: 0.875rem;
+  `}
+`;
+
+const SubText = styled.text`
+  color: #27282b;
+  text-align: center;
+  font-family: Pretendard-Regular;
+  font-size: 0.875; //14px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.313rem /* 21px */
   margin-bottom: 0.625rem;
+  padding-bottom: 0.625rem;
 
   ${theme.media.mobile`
     font-size: 0.875rem;
@@ -406,6 +529,18 @@ const PhotoBox = styled.div`
 `;
 
 const PutPhoto = styled.div`
+  // display: flex;
+  // width: 17.5rem;
+  // height: 3.5rem;
+  // padding: 4.375rem 0;
+  // flex-direction: column;
+  // justify-content: center;
+  // align-items: center;
+  // gap: 0.625rem;
+  // border-radius: 0.375rem;
+  // border: 1px solid #e0e1e9;
+  // background: #fdfdff;
+
   display: flex;
   width: 17.5rem;
   height: 3.5rem;
@@ -417,6 +552,9 @@ const PutPhoto = styled.div`
   border-radius: 0.375rem;
   border: 1px solid #e0e1e9;
   background: #fdfdff;
+  overflow: hidden; /* 내용이 넘치지 않도록 처리 */
+  position: relative; /* 아이콘 오버레이 위치를 위해 */
+  transition: background-color 0.3s ease; /* 부드러운 색상 전환 효과 */
 
   ${theme.media.mobile`
 
@@ -505,7 +643,7 @@ const DraButtonBox = styled.div`
   padding: 0 1.25rem; //0 20px;
   background: #9386e0;
   border-radius: 0.25rem; //4px;
-  border: 0.0625rem solid #9386e0;
+  //border: 0.0625rem solid #9386e0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -515,4 +653,18 @@ const DraButtonBox = styled.div`
   ${theme.media.mobile`
     display: none;
 `}
+`;
+
+//아이콘 관련 스타일
+const IconOverlay = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
 `;
