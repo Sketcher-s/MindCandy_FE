@@ -66,7 +66,7 @@ const Button = styled.button`
   height: 2.75rem; // 44px to rem
   padding-left: 1.25rem; // 20px to rem
   padding-right: 1.25rem; // 20px to rem
-  background: #6487E2;
+  background: #9386E0;
   border-radius: 0.25rem; // 4px to rem
   color: white;
   justify-content: center;
@@ -81,7 +81,7 @@ top: 10px;     // 버튼을 상단으로부터 10px 위치에 배치
 right: 10px;   // 버튼을 우측으로부터 10px 위치에 배치
 background: transparent;
 border: none;
-color: #AAA;
+color: #9386E0;
 font-size: 1.5rem;
 cursor: pointer;
 `;
