@@ -496,10 +496,10 @@ const DrawModal = ({
 
   const handleDoneClick = async () => {
     console.log("완료 버튼 클릭");
-    console.log('------------------------')
-    console.log(pictureType)
-    console.log('------------------------')
-    console.log(content)
+    console.log("------------------------");
+    console.log(pictureType);
+    console.log("------------------------");
+    console.log(content);
 
     if (signatureCanvasRef.current) {
       const imageData = signatureCanvasRef.current.toDataURL("image/png");
@@ -548,7 +548,7 @@ const DrawModal = ({
           console.log("Value:", value); // value 내용 확인
           console.log("Value type:", typeof value); // value 타입 확인 (여기서 'string'으로 나와야 함)
           // pictureType과 응답 데이터의 특정 필드를 value로 추가
-          console.log(disabledImages)
+          console.log(disabledImages);
           // setPictureRequestData((prevData) => [
           //   ...prevData,
           //   {
@@ -559,9 +559,7 @@ const DrawModal = ({
 
           // 빈 값 또는 공백 문자열에 대한 처리
           if (!value || value.trim() === "") {
-            console.log(
-              `"${content}"의 인식 결과가 없습니다. 활성화 합니다.`
-            );
+            console.log(`"${content}"의 인식 결과가 없습니다. 활성화 합니다.`);
             setDisabledImages((prev) => ({ ...prev, [content]: false }));
           } else {
             console.log("Value:", value);
@@ -569,9 +567,9 @@ const DrawModal = ({
               `"${content}"의 인식 결과가 있습니다. 비활성화 합니다.`
             );
             setDisabledImages((prev) => ({ ...prev, [content]: true }));
-            console.log('======================')
-            console.log(disabledImages)
-            console.log('======================')
+            console.log("======================");
+            console.log(disabledImages);
+            console.log("======================");
           }
         } else {
           console.error("Recognition 요청 실패:", await response.text());
