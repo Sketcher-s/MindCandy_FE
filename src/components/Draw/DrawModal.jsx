@@ -38,6 +38,8 @@ const DrawModal = ({
   setPreviewUrls, // 그림의 타입을 전달
   pictureType,
   prevUrl,
+  setDisabledImages,
+  disabledImages,
 }) => {
   // 버튼 클릭했을 때 화면 이동
   const Navigate = useNavigate();
@@ -111,8 +113,8 @@ const DrawModal = ({
 
         img.onload = () => {
           const canvas = signatureCanvasRef.current.getCanvas();
-          const context = canvas.getContext('2d');
-    
+          const context = canvas.getContext("2d");
+
           // 캔버스를 비우고, 이미지 크기 조정 후 그리기
           context.clearRect(0, 0, canvas.width, canvas.height);
           // 이미지의 크기를 조정하여 캔버스에 그리기
@@ -124,16 +126,6 @@ const DrawModal = ({
     }
     // 페이지 컴포넌트가 마운트되면 body 태그에 클래스를 추가
   }, [isOpen]);
-  // // 흰색 배경
-  // useEffect(() => {
-  //   // 캔버스 배경을 흰색으로 설정
-  //   const canvas = signatureCanvasRef.current.getCanvas();
-  //   const ctx = canvas.getContext('2d');
-  //   ctx.fillStyle = '#FFFFFF'; // 흰색 배경 설정
-  //   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  //   // 이 후의 그림 그리기는 흰색 배경 위에 수행
-  // }, []);
 
   useEffect(() => {
     // 캔버스 배경을 흰색으로 설정
@@ -145,28 +137,6 @@ const DrawModal = ({
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
   }, []);
-
-  // //흰색 배경 유지 코드 추가
-  // useEffect(() => {
-  //   const canvas = signatureCanvasRef.current.getCanvas();
-  //   const ctx = canvas.getContext('2d');
-
-  //   // 캔버스 초기화 및 배경 설정 함수
-  //   function initializeCanvas() {
-  //     ctx.fillStyle = '#FFFFFF';
-  //     ctx.fillRect(0, 0, canvas.width, canvas.height);
-  //   }
-
-  //   // 윈도우 리사이즈 이벤트에 반응하여 캔버스를 다시 초기화
-  //   window.addEventListener('resize', initializeCanvas);
-
-  //   // 컴포넌트 마운트 시 초기화 수행
-  //   initializeCanvas();
-
-  //   return () => {
-  //     window.removeEventListener('resize', initializeCanvas);
-  //   };
-  // }, []);
 
   useEffect(() => {
     // 윈도우 리사이즈 이벤트에 반응하여 캔버스를 다시 초기화
@@ -188,20 +158,6 @@ const DrawModal = ({
       window.removeEventListener("resize", initializeCanvas);
     };
   }, []);
-
-  // useEffect(() => {
-  //   const savedData = localStorage.getItem('canvasData');
-  //   if (savedData) {
-  //     setCanvasData(savedData);
-  //     const img = new Image();
-  //     img.onload = () => {
-  //       const canvas = signatureCanvasRef.current.getCanvas();
-  //       const ctx = canvas.getContext('2d');
-  //       ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // 이미지를 캔버스 크기에 맞게 그립니다.
-  //     };
-  //     img.src = savedData;
-  //   }
-  // }, []);
 
   useEffect(() => {
     const savedData = localStorage.getItem("canvasData");
@@ -252,10 +208,10 @@ const DrawModal = ({
 
   // 그림판 초기화: 펜 색상과 크기를 설정
   useEffect(() => {
-      console.log("Default pencil is set");
-      setColor("black"); // 펜 색상을 검정색으로 설정
-      setPenSize(1); // 펜 크기를 1로 설정
-      // 이후 필요한 추가 초기화 작업을 수행할 수 있습니다.
+    console.log("Default pencil is set");
+    setColor("black"); // 펜 색상을 검정색으로 설정
+    setPenSize(1); // 펜 크기를 1로 설정
+    // 이후 필요한 추가 초기화 작업을 수행할 수 있습니다.
   }, []);
 
   useEffect(() => {
@@ -318,7 +274,6 @@ const DrawModal = ({
     };
   }, []);
 
-
   const handleResize = () => {
     if (signatureCanvasRef.current) {
       const canvasElement = signatureCanvasRef.current.getCanvas(); // 실제 canvas 요소를 가져옵니다.
@@ -370,8 +325,6 @@ const DrawModal = ({
   };
 
   useEffect(() => {
-    
-
     // 크기 변경 이벤트 리스너 등록
     window.addEventListener("resize", handleResize);
 
@@ -443,104 +396,110 @@ const DrawModal = ({
     return new Blob([ab], { type: mimeString });
   };
 
-  const uploadImageToServer = async () => {
-    // const token = localStorage.getItem('jwtToken');
-    if (!jwtToken) {
-      console.error("인증권한 없음");
-      return;
-    }
+  // const uploadImageToServer = async () => {
+  //   // const token = localStorage.getItem('jwtToken');
+  //   if (!jwtToken) {
+  //     console.error("인증권한 없음");
+  //     return;
+  //   }
 
-    console.log("JWT Token:", jwtToken);
+  //   console.log("JWT Token:", jwtToken);
 
-    if (signatureCanvasRef.current) {
-      const canvas = signatureCanvasRef.current.getCanvas();
-      let imageData = canvas.toDataURL("image/png"); // 원본 이미지 데이터
+  //   if (signatureCanvasRef.current) {
+  //     const canvas = signatureCanvasRef.current.getCanvas();
+  //     let imageData = canvas.toDataURL("image/png"); // 원본 이미지 데이터
 
-      // 화면 크기가 768px 미만인 경우, 이미지 크기를 조정합니다.
-      if (window.innerWidth < 768) {
-        // 원본 캔버스에서 이미지를 크게 조정
-        imageData = resizeCanvasImage(canvas, 500, 500, "white"); // 모바일에서는 800x600 크기로 조정
-      }
+  //     // 화면 크기가 768px 미만인 경우, 이미지 크기를 조정합니다.
+  //     if (window.innerWidth < 768) {
+  //       // 원본 캔버스에서 이미지를 크게 조정
+  //       imageData = resizeCanvasImage(canvas, 500, 500, "white"); // 모바일에서는 800x600 크기로 조정
+  //     }
 
-      const blob = dataURLtoBlob(imageData);
-      console.log(blob); // Blob 데이터 확인
-      const formData = new FormData();
-      formData.append("file", blob, "image.png");
-      formData.append("pictureType", JSON.stringify({ pictureType: "HOUSE" })); // pictureType을 JSON 객체로 추가
+  //     const blob = dataURLtoBlob(imageData);
+  //     console.log(blob); // Blob 데이터 확인
+  //     const formData = new FormData();
+  //     formData.append("file", blob, "image.png");
+  //     formData.append("pictureType", JSON.stringify({ pictureType: "HOUSE" })); // pictureType을 JSON 객체로 추가
 
-      // FormData 내용 로그 출력
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+  //     // FormData 내용 로그 출력
+  //     for (let [key, value] of formData.entries()) {
+  //       console.log(`${key}: ${value}`);
+  //     }
 
-      console.log("Sending POST request to server with form data:");
-      setIsLoading(true);
+  //     // 이미지 파일 크기 로그 출력
+  //     console.log("이미지 파일 크기:", blob.size, "bytes");
 
-      try {
-        const response = await fetch(
-          "https://dev.catchmind.shop/api/picture/recognition",
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${jwtToken}`,
-            },
-            body: formData,
-          }
-        );
+  //     console.log("Sending POST request to server with form data:");
+  //     setIsLoading(true);
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(
-            `HTTP error! status: ${response.status}, message: ${errorText}`
-          );
-          throw new Error(
-            `HTTP error! status: ${response.status}, message: ${errorText}`
-          );
-        }
+  //     try {
+  //       const response = await fetch(
+  //         "https://dev.catchmind.shop/api/picture/recognition",
+  //         {
+  //           method: "POST",
+  //           headers: {
+  //             Authorization: `Bearer ${jwtToken}`,
+  //           },
+  //           body: formData,
+  //         }
+  //       );
 
-        let data = await response.json();
-        console.log("File upload successful:", data);
-        //TODO => 이부분 에러남
-        //Navigate('/result', { state: { response: data } });
-        handleClear(); // 이미지 업로드 후 캔버스 클리어
-      } catch (error) {
-        console.error("File upload failed:", error.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
+  //       if (!response.ok) {
+  //         const errorText = await response.text();
+  //         console.error(
+  //           `HTTP error! status: ${response.status}, message: ${errorText}`
+  //         );
+  //         throw new Error(
+  //           `HTTP error! status: ${response.status}, message: ${errorText}`
+  //         );
+  //       }
+
+  //       let data = await response.json();
+  //       console.log("File upload successful:", data);
+  //       //TODO => 이부분 에러남
+  //       handleClear(); // 이미지 업로드 후 캔버스 클리어
+  //     } catch (error) {
+  //       console.error("File upload failed:", error.message);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }
+  // };
 
   // 이미지 크기 조정을 위한 함수
-  function resizeCanvasImage(
-    originalCanvas,
-    targetWidth,
-    targetHeight,
-    backgroundColor = "white"
-  ) {
-    const tempCanvas = document.createElement("canvas");
-    const tempCtx = tempCanvas.getContext("2d");
-    tempCanvas.width = targetWidth;
-    tempCanvas.height = targetHeight;
-    // 배경색 설정
-    tempCtx.fillStyle = backgroundColor;
-    tempCtx.fillRect(0, 0, targetWidth, targetHeight);
-    tempCtx.drawImage(
-      originalCanvas,
-      0,
-      0,
-      originalCanvas.width,
-      originalCanvas.height,
-      0,
-      0,
-      targetWidth,
-      targetHeight
-    );
-    return tempCanvas.toDataURL("image/png");
-  }
+  // function resizeCanvasImage(
+  //   originalCanvas,
+  //   targetWidth,
+  //   targetHeight,
+  //   backgroundColor = "white"
+  // ) {
+  //   const tempCanvas = document.createElement("canvas");
+  //   const tempCtx = tempCanvas.getContext("2d");
+  //   tempCanvas.width = targetWidth;
+  //   tempCanvas.height = targetHeight;
+  //   // 배경색 설정
+  //   tempCtx.fillStyle = backgroundColor;
+  //   tempCtx.fillRect(0, 0, targetWidth, targetHeight);
+  //   tempCtx.drawImage(
+  //     originalCanvas,
+  //     0,
+  //     0,
+  //     originalCanvas.width,
+  //     originalCanvas.height,
+  //     0,
+  //     0,
+  //     targetWidth,
+  //     targetHeight
+  //   );
+  //   return tempCanvas.toDataURL("image/png");
+  // }
 
   const handleDoneClick = async () => {
     console.log("완료 버튼 클릭");
+    console.log('------------------------')
+    console.log(pictureType)
+    console.log('------------------------')
+    console.log(content)
 
     if (signatureCanvasRef.current) {
       const imageData = signatureCanvasRef.current.toDataURL("image/png");
@@ -556,11 +515,14 @@ const DrawModal = ({
 
       // Blob URL 생성 및 미리보기 설정
       const blobUrl = URL.createObjectURL(blob);
-      console.log(blobUrl); // Blob URL이 제대로 생성되는지 확인
+      //console.log(blobUrl); // Blob URL이 제대로 생성되는지 확인
       setPreviewUrls((prev) => ({
         ...prev,
-        [pictureType]: blobUrl,
+        [content]: blobUrl,
       }));
+
+      // 이미지 파일 크기 로그 출력
+      console.log("이미지 파일 크기:", blob.size, "bytes");
 
       try {
         const response = await fetch(
@@ -580,6 +542,37 @@ const DrawModal = ({
 
           // Recognition 응답 데이터를 부모 컴포넌트로 전달하여 처리
           handleRecognitionResponse(data, content.toUpperCase(), imageData); // 예: HOUSE 그림에 대한 응답 처리
+
+          // value 값이 문자열인지 확인
+          const value = data.value; // 적절한 필드를 확인하세요
+          console.log("Value:", value); // value 내용 확인
+          console.log("Value type:", typeof value); // value 타입 확인 (여기서 'string'으로 나와야 함)
+          // pictureType과 응답 데이터의 특정 필드를 value로 추가
+          console.log(disabledImages)
+          // setPictureRequestData((prevData) => [
+          //   ...prevData,
+          //   {
+          //     pictureType: content, // 이미지 타입 (예: HOUSE, TREE, MALE, FEMALE)
+          //     value: value || "", // 서버 응답 데이터에서 필요한 필드 (예: 값이 들어가야 할 필드)
+          //   },
+          // ]);
+
+          // 빈 값 또는 공백 문자열에 대한 처리
+          if (!value || value.trim() === "") {
+            console.log(
+              `"${content}"의 인식 결과가 없습니다. 활성화 합니다.`
+            );
+            setDisabledImages((prev) => ({ ...prev, [content]: false }));
+          } else {
+            console.log("Value:", value);
+            console.log(
+              `"${content}"의 인식 결과가 있습니다. 비활성화 합니다.`
+            );
+            setDisabledImages((prev) => ({ ...prev, [content]: true }));
+            console.log('======================')
+            console.log(disabledImages)
+            console.log('======================')
+          }
         } else {
           console.error("Recognition 요청 실패:", await response.text());
         }
@@ -588,16 +581,16 @@ const DrawModal = ({
       }
 
       onClose(); // 모달 창 닫기
-
+      // setIsButtonEnabled(disabledImages[ContentType.HOUSE] &disabledImages[ContentType.TREE] &disabledImages[ContentType.MALE] &disabledImages[ContentType.FEMALE] )
       console.log(content.toUpperCase());
     }
   };
 
   const ContentType = {
-    HOUSE: "house",
-    TREE: "tree",
-    MALE: "male",
-    FEMALE: "female",
+    HOUSE: "HOUSE",
+    TREE: "TREE",
+    MALE: "MALE",
+    FEMALE: "FEMALE",
   };
 
   const getContent = () => {
@@ -765,6 +758,8 @@ DrawModal.propTypes = {
   setPreviewUrls: PropTypes.func.isRequired,
   pictureType: PropTypes.string.isRequired,
   prevUrl: PropTypes.object.isRequired,
+  setDisabledImages: PropTypes.func.isRequired,
+  disabledImages: PropTypes.object.isRequired,
 };
 
 export default DrawModal;

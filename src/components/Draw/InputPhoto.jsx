@@ -2,13 +2,15 @@ import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { theme } from "../../theme";
+import Loading from "../Draw/Loading";
 import { useRecoilState } from "recoil";
 import { LoginState } from "../../recoil/recoilState";
 import PropTypes from "prop-types";
-
+import { ReactComponent as Photochecktrue } from "../../assets/Draw/photochecktrue.svg";
+import { ReactComponent as Photocheckfalse } from "../../assets/Draw/photocheckfalse.svg";
 // imgFile props에 대한 유효성 검사를 추가
 InputPhoto.propTypes = {
-  // imgFile은 File 객체로 전달되어야 합니다.
+  // imgFile은 File 객체로 전달되어야 함
   imgFile: PropTypes.instanceOf(File),
 };
 
@@ -42,6 +44,14 @@ function InputPhoto() {
     FEMALE: null,
   });
 
+  //사진 활성, 비활성을 위한 disabledImages 상태 추가
+  const [disabledImages, setDisabledImages] = useState({
+    HOUSE: false,
+    TREE: false,
+    MALE: false,
+    FEMALE: false,
+  });
+
   // 로그인 상태
   const [isLoggedIn, setIsLoggedIn] = useRecoilState(LoginState);
   if (!isLoggedIn) {
@@ -56,11 +66,34 @@ function InputPhoto() {
   const [jwtToken, setjwtToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // 버튼 활성화 상태를 관리할 useState 추가
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+
+  // 모든 사진과 시간 입력 여부를 확인하는 함수
+  const checkFormCompletion = () => {
+    const allImagesUploaded = Object.values(imageFiles).every(
+      (file) => file !== null
+    );
+
+    const allTimeEntered =
+      startHours !== "" &&
+      startMinutes !== "" &&
+      endHours !== "" &&
+      endMinutes !== "";
+
+    setIsButtonEnabled(allImagesUploaded && allTimeEntered);
+  };
+
   // 시간 관련 상태
   const [startHours, setStartHours] = useState("");
   const [startMinutes, setStartMinutes] = useState("");
   const [endHours, setEndHours] = useState("");
   const [endMinutes, setEndMinutes] = useState("");
+
+  // 각 파일 선택 또는 시간 변경 시마다 호출
+  useEffect(() => {
+    checkFormCompletion();
+  }, [imageFiles, startHours, startMinutes, endHours, endMinutes]);
 
   // 파일이 선택되었을 때 처리하는 함수
   const handleFileChange = (pictureType) => (event) => {
@@ -105,12 +138,13 @@ function InputPhoto() {
 
     const formData = new FormData();
     formData.append("file", file);
-    // formData.append('pictureType', pictureType); // pictureType을 문자열로 추가
     formData.append("pictureType", JSON.stringify({ pictureType })); // pictureType을 객체로 전송
 
+    console.log("FormData에 추가된 항목들:");
     // FormData 내용 로그 출력
     for (let [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
+      console.log(`${key}: ${value instanceof File ? value.name : value}`);
     }
 
     try {
@@ -144,6 +178,20 @@ function InputPhoto() {
             value: value || "", // 서버 응답 데이터에서 필요한 필드 (예: 값이 들어가야 할 필드)
           },
         ]);
+
+        // 빈 값 또는 공백 문자열에 대한 처리
+        if (!value || value.trim() === "") {
+          console.log(
+            `"${pictureType}"의 인식 결과가 없습니다. 활성화 합니다.`
+          );
+          setDisabledImages((prev) => ({ ...prev, [pictureType]: false }));
+        } else {
+          console.log("Value:", value);
+          console.log(
+            `"${pictureType}"의 인식 결과가 있습니다. 비활성화 합니다.`
+          );
+          setDisabledImages((prev) => ({ ...prev, [pictureType]: true }));
+        }
       } else {
         console.error(
           `파일 업로드 실패 (${pictureType})`,
@@ -156,14 +204,6 @@ function InputPhoto() {
       setIsLoading(false);
     }
   };
-
-  // // 시작 시간과 종료 시간을 저장할 상태 정의
-  // const [startTime, setStartTime] = useState(""); // 시작 시간 저장
-  // const [endTime, setEndTime] = useState(""); // 종료 시간 저장
-
-  // // 시간 관련 상태
-  // const [hours, setHours] = useState("");
-  // const [minutes, setMinutes] = useState("");
 
   // 시간 유효성 검사 함수
   const handleHoursChange = (setter) => (e) => {
@@ -220,18 +260,19 @@ function InputPhoto() {
       return;
     }
 
-    const consumedTime = calculateConsumedTime();
-    if (!consumedTime) {
+    const requiredTime = calculateConsumedTime();
+    if (!requiredTime) {
       console.error("시간 계산에 오류가 있습니다.");
       return;
     }
 
+    setIsLoading(true); //로딩 시작
     const formData = new FormData();
 
     // FormData에 각 파일을 개별적으로 추가
     formData.append("fileList", imageFiles.HOUSE); // 파일 자체를 append
-    formData.append("fileList", imageFiles.MALE);
     formData.append("fileList", imageFiles.TREE);
+    formData.append("fileList", imageFiles.MALE);
     formData.append("fileList", imageFiles.FEMALE);
 
     // pictureRequestDtoList에 업로드된 파일의 정보를 사용
@@ -242,8 +283,7 @@ function InputPhoto() {
         pictureType: item.pictureType,
         value: item.value, // 여기서 'string' 대신 실제로 서버에 적합한 문자열 값을 넣으세요
       })),
-      // requiredTime: new Date().toISOString(),
-      consumedTime,
+      requiredTime,
     };
 
     // requestData를 JSON 형식으로 변환하여 FormData에 추가
@@ -296,6 +336,14 @@ function InputPhoto() {
     fileInputRefs.current[type].click();
   };
 
+  const handleDoneClick = () => {
+    const state = Navigate?.state || {}; // state에서 imageData 가져오기
+    const { imageData } = state;
+    console.log("완료 버튼 클릭");
+    Navigate("/loading", { state: { imageData } });
+    handleSubmit(imageData); // 서버로 이미지 전송
+  };
+
   const uploadTexts = [
     "집 그림을 첨부해주세요.",
     "남자 사람 그림을 첨부해주세요.",
@@ -311,14 +359,19 @@ function InputPhoto() {
   ];
 
   const uploadTexts2 = [
-    "종이를 가로 방향으로 그려주세요.",
-    "종이를 세로 방향으로 그려주세요.",
-    "종이를 세로 방향으로 그려주세요.",
-    "종이를 세로 방향으로 그려주세요.",
+    "종이를 가로 ㅡ 방향으로 그려주세요.",
+    "종이를 세로 | 방향으로 그려주세요.",
+    "종이를 세로 | 방향으로 그려주세요.",
+    "종이를 세로 | 방향으로 그려주세요.",
   ];
 
   return (
     <OuterContainer>
+      {isLoading && (
+        <>
+          <Loading />
+        </>
+      )}
       <InnerContainer>
         <InnerWrapper>
           <OneBox>
@@ -326,62 +379,104 @@ function InputPhoto() {
             <PhotoBox>
               <Row>
                 {["HOUSE", "MALE"].map((type, index) => (
-                  <PutPhoto key={type} onClick={handleButtonClick(type)}>
-                    {/* 이미지 미리보기 또는 업로드 텍스트 */}
-                    {imagePreviews[type] ? (
-                      <img
-                        src={imagePreviews[type]}
-                        alt={`Image Preview ${type}`}
-                        style={{
-                          width: "100%",
-                          maxHeight: "200px",
-                          borderRadius: "10px",
-                        }}
-                      />
-                    ) : (
-                      <>
-                        <PutPhotoText1>{uploadTexts[type]}</PutPhotoText1>
-                        <PutPhotoText1>{uploadTexts1[index]}</PutPhotoText1>
-                        <PutPhotoText2>{uploadTexts2[index]}</PutPhotoText2>
-                      </>
+                  <PutPhoto
+                    key={type}
+                    onClick={handleButtonClick(type)}
+                    disabled={!disabledImages[type]} //비활성화 상태 전달
+                    hasImage={!!imagePreviews[type]} // 이미지가 있는지 여부 전달
+                  >
+                    {imagePreviews[type] && (
+                      <IconOverlay>
+                        {disabledImages[type] ? (
+                          <Photochecktrue width={24} height={24} /> // 비활성화된 경우 녹색 체크 표시
+                        ) : (
+                          <Photocheckfalse width={24} height={24} /> // 활성화된 경우 빨간 X 표시
+                        )}
+                      </IconOverlay>
                     )}
-                    <HiddenFileInput
-                      type="file"
-                      ref={(el) => (fileInputRefs.current[type] = el)}
-                      onChange={handleFileChange(type)}
-                      accept="image/*"
-                    />
+                    <TextWrapper>
+                      <div style={{ position: "relative" }}>
+                        {/* 이미지 미리보기 또는 업로드 텍스트 */}
+                        {imagePreviews[type] ? (
+                          <>
+                            <PreviewImage
+                              src={imagePreviews[type]}
+                              alt={`Image Preview ${type}`}
+                              isDisabled={!disabledImages[type]} // 비활성화 여부 전달
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <PutPhotoText1>{uploadTexts[type]}</PutPhotoText1>
+                            <PutPhotoText1>{uploadTexts1[index]}</PutPhotoText1>
+                            <div></div>
+                            <PutPhotoText2>{uploadTexts2[index]}</PutPhotoText2>
+                          </>
+                        )}
+
+                        <HiddenFileInput
+                          type="file"
+                          ref={(el) => (fileInputRefs.current[type] = el)}
+                          onChange={handleFileChange(type)}
+                          accept="image/*"
+                          disabled={disabledImages[type]} //비활성화 여부 적용
+                        />
+                      </div>
+                    </TextWrapper>
                   </PutPhoto>
                 ))}
               </Row>
 
               <Row>
                 {["TREE", "FEMALE"].map((type, index) => (
-                  <PutPhoto key={type} onClick={handleButtonClick(type)}>
-                    {/* 이미지 미리보기 또는 업로드 텍스트 */}
-                    {imagePreviews[type] ? (
-                      <img
-                        src={imagePreviews[type]}
-                        alt={`Image Preview ${type}`}
-                        style={{
-                          width: "100%",
-                          maxHeight: "200px",
-                          borderRadius: "10px",
-                        }}
-                      />
-                    ) : (
-                      <>
-                        <PutPhotoText1>{uploadTexts[type]}</PutPhotoText1>
-                        <PutPhotoText1>{uploadTexts1[index + 2]}</PutPhotoText1>
-                        <PutPhotoText2>{uploadTexts2[index + 2]}</PutPhotoText2>
-                      </>
+                  <PutPhoto
+                    key={type}
+                    onClick={handleButtonClick(type)}
+                    disabled={!disabledImages[type]} //비활성화 상태 전달
+                    hasImage={!!imagePreviews[type]} // 이미지가 있는지 여부 전달
+                  >
+                    {imagePreviews[type] && (
+                      <IconOverlay>
+                        {disabledImages[type] ? (
+                          <Photochecktrue width={24} height={24} /> // 비활성화된 경우 녹색 체크 표시
+                        ) : (
+                          <Photocheckfalse width={24} height={24} /> // 활성화된 경우 빨간 X 표시
+                        )}
+                      </IconOverlay>
                     )}
-                    <HiddenFileInput
-                      type="file"
-                      ref={(el) => (fileInputRefs.current[type] = el)}
-                      onChange={handleFileChange(type)}
-                      accept="image/*"
-                    />
+                    <TextWrapper>
+                      <div style={{ position: "relative" }}>
+                        {/* 이미지 미리보기 또는 업로드 텍스트 */}
+                        {imagePreviews[type] ? (
+                          <>
+                            <PreviewImage
+                              src={imagePreviews[type]}
+                              alt={`Image Preview ${type}`}
+                              isDisabled={!disabledImages[type]} // 비활성화 여부 전달
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <PutPhotoText1>{uploadTexts[type]}</PutPhotoText1>
+                            <PutPhotoText1>
+                              {uploadTexts1[index + 2]}
+                            </PutPhotoText1>
+                            <div></div>
+                            <PutPhotoText2>
+                              {uploadTexts2[index + 2]}
+                            </PutPhotoText2>
+                          </>
+                        )}
+
+                        <HiddenFileInput
+                          type="file"
+                          ref={(el) => (fileInputRefs.current[type] = el)}
+                          onChange={handleFileChange(type)}
+                          accept="image/*"
+                          disabled={disabledImages[type]} //비활성화 여부 적용
+                        />
+                      </div>
+                    </TextWrapper>
                   </PutPhoto>
                 ))}
               </Row>
@@ -513,8 +608,18 @@ function InputPhoto() {
             </Timer>
           </TimerBox>
 
-          <DraButtonBox>
-            <DraButton onClick={handleSubmit}>검사 결과 보러가기</DraButton>
+          <DraButtonBox
+            style={{
+              backgroundColor: isButtonEnabled ? "#9386E0" : "#DDDDF7", // 버튼 색상 변경
+              cursor: isButtonEnabled ? "pointer" : "not-allowed",
+            }}
+          >
+            <DraButton
+              onClick={handleDoneClick}
+              disabled={!isButtonEnabled} // 버튼 활성화 여부 제어
+            >
+              검사 결과 보러가기
+            </DraButton>
           </DraButtonBox>
         </InnerWrapper>
       </InnerContainer>
@@ -537,12 +642,11 @@ const OuterContainer = styled.div`
   display: flex;
   background: #f3f3f6;
 
-    ${theme.media.mobile`
+  ${theme.media.mobile`
         margin-top: 2rem;
           height: 100%; // 뷰포트의 전체 높이
 
 `}
-
 `;
 
 const InnerContainer = styled.div`
@@ -567,7 +671,7 @@ const InnerContainer = styled.div`
 
 `}
 
- ${theme.media.desktop`
+  ${theme.media.desktop`
   margin-top: 13rem;
   padding: 1.625rem;
   width: 40.25rem; //644px;
@@ -631,6 +735,9 @@ const PutPhoto = styled.div`
   border-radius: 0.375rem;
   border: 1px solid #e0e1e9;
   background: #fdfdff;
+  overflow: hidden; /* 내용이 넘치지 않도록 처리 */
+  position: relative; /* 아이콘 오버레이 위치를 위해 */
+  transition: background-color 0.3s ease; /* 부드러운 색상 전환 효과 */
 
   ${theme.media.mobile`
   
@@ -819,7 +926,7 @@ const DraButtonBox = styled.div`
   padding: 0 1.25rem; //0 20px;
   background: #9386e0;
   border-radius: 0.25rem; //4px;
-  border: 0.0625rem solid #9386e0;
+  // border: 0.0625rem solid #9386e0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -833,4 +940,47 @@ const DraButtonBox = styled.div`
 //파일 관련
 const HiddenFileInput = styled.input`
   display: none;
+`;
+
+//아이콘 관련 스타일
+const IconOverlay = styled.div`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+`;
+
+const TextWrapper = styled.div`
+  display: flex;
+  flex-direction: column; /* 세로 정렬 */
+  align-items: center; /* 가로 가운데 정렬 */
+  justify-content: center; /* 세로 가운데 정렬 */
+  height: 100%; /* 부모 컨테이너의 전체 높이 사용 */
+  text-align: center; /* 텍스트 가운데 정렬 */
+  gap: 8px; /* 각 텍스트 간 간격 설정 */
+`;
+
+const PreviewImage = styled.img`
+  max-width: 100%; /* 이미지가 영역을 넘지 않도록 제한 */
+  max-height: 100%; /* 이미지가 영역을 넘지 않도록 제한 */
+  object-fit: contain; /* 이미지 비율 유지 */
+  border-radius: 0.375rem;
+
+   max-width: 100%; 
+  max-height: 100%; 
+  object-fit: contain; 
+  transition: filter 0.3s, opacity 0.3s;
+
+  ${({ isDisabled }) =>
+    isDisabled &&
+    `
+    filter: grayscale(100%) brightness(40%); /* 어둡게 처리 */
+    opacity: 0.4; /* 투명도 조절 */
+  `}
 `;
