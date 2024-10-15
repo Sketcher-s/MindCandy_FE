@@ -34,7 +34,12 @@ function InputPicture() {
   }, []);
 
   useEffect(() => {
-    setIsButtonEnabled(disabledImages[ContentType.HOUSE] & disabledImages[ContentType.TREE] &disabledImages[ContentType.MALE] &disabledImages[ContentType.FEMALE])
+    setIsButtonEnabled(
+      disabledImages[ContentType.HOUSE] &
+        disabledImages[ContentType.TREE] &
+        disabledImages[ContentType.MALE] &
+        disabledImages[ContentType.FEMALE]
+    );
   }, [isModalOpen]);
 
   // 모달 열기
@@ -136,7 +141,6 @@ function InputPicture() {
       ...prevData,
       { pictureType, value: data.value }, // 'someValue'는 실제 데이터에 맞게 변경
     ]);
-
   };
 
   // 모든 이미지 파일을 모아서 배열로 서버로 전송하는 함수
@@ -234,7 +238,7 @@ function InputPicture() {
   const handleDoneClick = () => {
     const state = Navigate?.state || {}; // state에서 imageData 가져오기
     const { imageData } = state;
-    console.log(imageData)
+    console.log(imageData);
     console.log("완료 버튼 클릭");
     Navigate("/loading", { state: { imageData } });
     handleSubmit(imageData); // 서버로 이미지 전송
@@ -246,7 +250,6 @@ function InputPicture() {
     MALE: "MALE",
     FEMALE: "FEMALE",
   };
-
 
   return (
     <OuterContainer>
