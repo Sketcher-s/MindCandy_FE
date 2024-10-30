@@ -230,6 +230,10 @@ export const ErrorText = styled.div`
   line-height: 1.5rem;
   word-wrap: break-word;
   text-align: left;
+  margin-left: 0.3rem;
+  ${theme.media.mobile`
+    margin-left: 0.5rem;
+  `}
 `;
 
 // NavbarStyle에서 가져옴

@@ -47,6 +47,8 @@ const Register = () => {
 
   // 이메일 중복 체크를 해야 회원가입 완료할 수 있음
   const [isEmailCheck, setIsEmailCheck] = useState(false);
+  const [emailCheckMsg, setEmailCheckMsg] = useState('');
+  const [emailCheckColor, setEmailCheckColor] = useState(''); // 메시지 색상 관리
 
   // 이메일 중복 체크 버튼 클릭 이벤트 핸들러
   const handleCheckEmail = async () => {
@@ -55,10 +57,14 @@ const Register = () => {
     try {
       const result = await CheckEmail(email);
       if(!result.isExisted){
-        setModalStatus('check'); // 사용 가능 모달
+        //setModalStatus('check'); // 사용 가능 모달
+        setEmailCheckMsg('사용 가능한 이메일입니다.');
+        setEmailCheckColor('#A49EE7');
         setIsEmailCheck(true);
       } else {
-        setModalStatus('dupli'); // 중복 모달
+        //setModalStatus('dupli'); // 중복 모달
+        setEmailCheckMsg('이미 가입된 이메일입니다.');
+        setEmailCheckColor('red'); // 중복 시 빨간색
         setIsEmailCheck(false);
       }
     } catch (error) {
@@ -150,6 +156,16 @@ const Register = () => {
 
   const userName = getValues('name'); // name 필드 값
   const emailWatch = watch('email');
+
+  useEffect(() => {
+    if (emailWatch) {
+      // 이메일 값이 변경되면 중복 체크 메시지 초기화
+      setEmailCheckMsg('');
+      //setEmailCheckColor('');
+      setIsEmailCheck(false);
+    }
+  }, [emailWatch]);
+
   return (
     <LoginContainer>
       <JoinWrapper onSubmit={handleSubmit(onSubmit)}>
@@ -171,12 +187,15 @@ const Register = () => {
               <CheckButton type="button" isError={!!errors.email} disabled={!!errors.email || !emailWatch} width={62} background="white" border='1px #6487E2 solid' onClick = {handleCheckEmail}><Text>중복체크</Text></CheckButton>
             </InputField>
             {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
+            {emailCheckMsg && (
+              <ErrorText style={{ color: emailCheckColor }}>{emailCheckMsg}</ErrorText>
+            )}
           </InputContainer>
           <InputContainer>
             <InputField isError={!!errors.password} isFocused={focus.password}>
               <InputValue type={hidePwd ? 'password' : 'text'} id="password" placeholder="비밀번호를 입력해 주세요" {...pwdRegister} onFocus={() => handleFocus('password')} 
                             onBlur={() => handleBlur('password')}/>
-              <PasswordIcon onClick={togglePasswordVisibility}>{hidePwd ? <PwdIcon /> : <NonPwdIcon />}</PasswordIcon>
+              <PasswordIcon onClick={togglePasswordVisibility}>{hidePwd ? <NonPwdIcon /> : < PwdIcon/>}</PasswordIcon>
             </InputField>
             {errors.password && <ErrorText>{errors.password.message}</ErrorText>}
           </InputContainer>
@@ -190,7 +209,7 @@ const Register = () => {
                 onFocus={() => handleFocus('matchPassword')} 
                             onBlur={() => handleBlur('matchPassword')}
               />
-              <PasswordIcon onClick={toggleMatchVisibility}>{hideMatch ? <PwdIcon /> : <NonPwdIcon />}</PasswordIcon>
+              <PasswordIcon onClick={toggleMatchVisibility}>{hideMatch ? <NonPwdIcon /> : < PwdIcon/>}</PasswordIcon>
             </InputField>
             {errors.matchPassword && <ErrorText>{errors.matchPassword.message}</ErrorText>}
           </InputContainer>
@@ -207,12 +226,8 @@ const Register = () => {
             <div>회원가입 완료</div>
           </Button>
         </ButtonWrapper>
-        {/* 이메일 중복체크 통과 */}
-        {modalStatus === 'check' && <Modal title="사용 가능한 이메일입니다." message="" close={handleClose} />}
-        {/* 이메일 중복체크 불통과 */}
-        {modalStatus === 'dupli' && <Modal title="이미 가입된 이메일입니다." message="" close={handleClose} />}
         {modalStatus === 'checkPlease' && <Modal title='이메일 중복 체크를 진행해주세요.' message='' close={handleClose}></Modal>}
-        {open && <Modal title="환영합니다!" message={`${userName}님, 회원가입이 완료되었습니다. Catch Mind에서 그림 심리 검사를 진행해보세요!`} close={moveToLogin} />}
+        {open && <Modal title="환영합니다!" message={<>{`${userName}님, 회원가입이 완료되었습니다.`}<br/>{`Catch Mind에서 그림 심리 검사를 진행해보세요!`}</>} close={moveToLogin} />}
       </JoinWrapper>
     </LoginContainer>
   );

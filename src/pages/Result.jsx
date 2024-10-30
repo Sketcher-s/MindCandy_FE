@@ -177,7 +177,7 @@ function Result() {
 
   const validateTitle = (inputTitle) => {
     if (inputTitle.length > 15) {
-      setError('제목은 15자를 넘지 말아주세요.');
+      setError('제목은 15자 이내로 입력해주세요.');
       setCanSave(false);
     } else if (!inputTitle) {
       setError('제목을 입력해주세요.');
@@ -317,7 +317,7 @@ const Modal = ({ image, onClose, type }) => {
     <ModalWrapper onClick={onClose}>
       <ModalContent>
         <ModalTitle>{type}</ModalTitle>
-        <img src={image} alt="Modal" />
+        <img src={image} alt="Modal" style={{ width: '80%', height: '80%', objectFit: 'contain' }}/>
         <Button><ButtonText>닫기</ButtonText></Button>
       </ModalContent>
     </ModalWrapper>
@@ -421,7 +421,7 @@ const TitleSection = styled.div`
 // `;
 
 const TitleInput = styled.input`
-  width: 90%;
+  width: 100%;
   height: 1.875rem;
   font-size: 1.625rem;
   font-weight: bold;
@@ -429,9 +429,9 @@ const TitleInput = styled.input`
   border-bottom: 0.125rem solid transparent;
   &:focus {
     outline: none;
-    border-bottom: 0.125rem solid #6487e2;
+    border-bottom: 0.125rem solid #A49EE7;
   }
-  border-bottom-color: ${props => props.isError ? 'red' : 'transparent'};
+  border-bottom-color: ${props => props.isError ? '#A49EE7' : 'transparent'};
   &::placeholder {
     color: rgb(177, 178, 184);
     ${theme.media.mobile`
@@ -439,7 +439,7 @@ const TitleInput = styled.input`
     `}
   }
   ${theme.media.mobile`
-    width:80%;
+    width:100%;
     font-size: 0.9rem;
   `}
 `;
@@ -467,10 +467,12 @@ display: flex;
 `;
 
 const ErrorMessage = styled.p`
-  color: red;
+  width: 100%;
+  color: #A49EE7;
   font-size: 0.75rem;
   margin-top: 0.5rem;
   font-weight: 200;
+  text-align: left;
 `;
 
 const DrawResult = styled.div`

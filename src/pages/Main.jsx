@@ -56,7 +56,7 @@ function Main() {
     if (isLoggedIn) {
       Navigate('/preparePage'); 
     } else {
-      setIsModalOpen(true);
+      Navigate('/login');
     }
   }
 
