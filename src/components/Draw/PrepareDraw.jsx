@@ -217,7 +217,7 @@ const SubTitle = styled.div`
   color: #27282B;
   font-size: 1.375rem; //22px;
   font-family: Pretendard-Regular;
-  font-weight: 700;
+  font-weight: 1000;
   line-height: 2.0625rem; //33px;
   word-wrap: break-word;
   text-align: center;
