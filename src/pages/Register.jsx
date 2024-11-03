@@ -156,9 +156,10 @@ const Register = () => {
 
   const userName = getValues('name'); // name 필드 값
   const emailWatch = watch('email');
+  //const emailField = getValues('email'); // email 필드 값
 
   useEffect(() => {
-    if (emailWatch) {
+    if (emailWatch || getValues('email') === '') { // 이메일 필드 값 비워졌을 때도 중복 체크 메시지 초기화
       // 이메일 값이 변경되면 중복 체크 메시지 초기화
       setEmailCheckMsg('');
       //setEmailCheckColor('');
@@ -184,7 +185,7 @@ const Register = () => {
             <InputField isError={!!errors.email} isFocused={focus.email}>
               <InputValue type="email" id="email" placeholder="이메일을 입력해 주세요" {...emailRegister} onFocus={() => handleFocus('email')} 
                             onBlur={() => handleBlur('email')} /> 
-              <CheckButton type="button" isError={!!errors.email} disabled={!!errors.email || !emailWatch} width={62} background="white" border='1px #6487E2 solid' onClick = {handleCheckEmail}><Text>중복체크</Text></CheckButton>
+              <CheckButton type="button" isError={!!errors.email} disabled={!!errors.email || !emailWatch} width={15} background="white" border='1px #6487E2 solid' onClick = {handleCheckEmail}><Text disabled={!!errors.email || !emailWatch}>중복체크</Text></CheckButton>
             </InputField>
             {errors.email && <ErrorText>{errors.email.message}</ErrorText>}
             {emailCheckMsg && (

@@ -238,21 +238,21 @@ export const ErrorText = styled.div`
 
 // NavbarStyle에서 가져옴
 export const CheckButton = styled.button`
-width: ${(props) => props.width};
-  /* padding: ; */
+  width: ${(props) => (typeof props.width === "string" ? props.width : `${props.width}%`)};
+  padding: 0.7%; 
   border-radius: 0.25rem;
   display: flex;
   justify-content: center;
   align-items: center;
   background: ${(props) => props.background};
-  border: ${(props) => (props.isError ? "1px solid #DDDDF7": "1px solid #A49EE7")};
+  border: ${(props) => (props.disabled ? "1px solid #DDDDF7": "1px solid #A49EE7")};
   margin-right: 0.5rem;
 `;
 
 // NavbarStyle에서 가져옴
 export const Text = styled.div`
   text-align: center;
-  color: ${(props) => props.isError ? '#DDDDF7' : '#A49EE7'};
+  color: ${(props) => props.disabled ? '#DDDDF7' : '#A49EE7'}; // 회원가입 시 중복체크 버튼
   font-size: 0.5rem;
   font-family: 'Pretendard', sans-serif;
   font-weight: 600;

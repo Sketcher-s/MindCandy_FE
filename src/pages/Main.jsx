@@ -2,7 +2,7 @@ import React, { useState,useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate, useLocation } from 'react-router-dom';
 import MainModal from '../components/MainModal';  // Modal 컴포넌트의 경로를 확인하고 적절히 수정하세요.
-import { ReactComponent as mainDraw } from '../assets/Main/mainDraw.svg';
+import { ReactComponent as mainDraw } from '../assets/Main/mainDraw2.svg';
 import { ReactComponent as Main2 } from  '../assets/Main/Main2.svg';
 import { ReactComponent as Main3 } from  '../assets/Main/Main3.svg';
 import { theme } from '../theme';

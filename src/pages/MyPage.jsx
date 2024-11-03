@@ -10,6 +10,7 @@ import { useRecoilState } from 'recoil';
 import { LoginState } from '../recoil/recoilState';
 import noneData from '../assets/mypage/noneData.svg';
 import listMy from '../assets/mypage/listMy.svg';
+import { debounce } from 'lodash';
 
 // 주요 컨테이너
 const MyPageContainer = styled.div`
@@ -331,9 +332,8 @@ const MyPage = () => {
 
 
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = debounce(() => { // 스크롤에 대해서 디바운싱 적용
       console.log('scrolling...');
-      // listWrapperRef.current를 사용하여 스크롤 위치 접근
       if (listRef.current) {
         const { scrollTop, scrollHeight, clientHeight } = listRef.current;
         if (clientHeight + scrollTop + 50 >= scrollHeight && !loading) {
@@ -341,7 +341,7 @@ const MyPage = () => {
           loadMoreData();
         }
       }
-    };
+    }, 300); // 300ms의 디바운싱 시간 설정
   
     const listWrapper = listRef.current;
     if (listWrapper) {
@@ -349,7 +349,7 @@ const MyPage = () => {
     }
     return () => {
       if (listWrapper) {
-        listWrapper.removeEventListener('scroll', handleScroll);
+        listWrapper.removeEventListener('scroll', handleScroll); // 이벤트 리스너를 제거 -> 메모리 누수 방지
       }
     };
   }, [loadMoreData, loading]); // 의존성 배열 업데이트
@@ -467,7 +467,8 @@ const UserInfo = styled.div`
 
 const BeforeList = styled.img`
   display: flex;
-  width: 80%;
+  width: 50%;
+  align-self: center;
 `;
 
 // 회원탈퇴
