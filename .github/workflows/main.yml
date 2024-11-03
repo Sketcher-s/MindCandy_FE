@@ -45,7 +45,6 @@ jobs:
             --exclude ".gitmessage.txt" \
             --exclude ".prettierignore" \
             --exclude ".DS_Store" \
-            --acl public-read \
             --cache-control "no-cache" \
             --region ap-northeast-2 \
             ./build/ s3://mindcandy-febucket
