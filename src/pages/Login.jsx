@@ -104,7 +104,7 @@ const Login = () => {
             <InputField isFocused={focus.email}>
               <InputValue
                 {...emailRegister}
-                type="email"
+                type="text" // 자체 유효성 검사 제외하기 위함
                 id="email"
                 placeholder="이메일을 입력해 주세요"
                 onFocus={() => handleFocus('email')}
@@ -131,7 +131,7 @@ const Login = () => {
                   pwdRegister.onChange(e);
                 }}
               />
-              <PasswordIcon onClick={togglePasswordVisibility}>{hidePwd ? <PwdIcon /> : <NonPwdIcon />}</PasswordIcon>
+              <PasswordIcon onClick={togglePasswordVisibility}>{hidePwd ? <NonPwdIcon /> : < PwdIcon/>}</PasswordIcon>
             </InputField>
             {errors.password && <ErrorText>{errors.password.message}</ErrorText>}
             {errorMsg === 'error' && <ErrorText>이메일 및 비밀번호를 다시 확인해주세요.</ErrorText>}
