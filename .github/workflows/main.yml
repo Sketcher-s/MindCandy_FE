@@ -45,4 +45,4 @@ jobs:
             --acl public-read \
             --cache-control "no-cache" \
             --region ap-northeast-2 \
-            ./build s3://mindcandy-febucket # 버킷 이름으로 변경
+            ./build/ s3://mindcandy-febucket # 버킷 이름으로 변경
