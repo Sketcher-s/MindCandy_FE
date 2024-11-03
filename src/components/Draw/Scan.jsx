@@ -60,7 +60,7 @@ const SpinnerWrapper = styled.div`
 
   ${theme.media.desktop`
     //width: 40rem;
-    top: 20%;
+    top: 40%;
     animation: SlideD 2.7s linear infinite both;
 `}
 `;
