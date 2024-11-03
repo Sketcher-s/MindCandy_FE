@@ -518,7 +518,7 @@ const StyledImage1 = styled.img`
 display: flex;
 width: 70%;
 position: absolute;
-top: 10%;
+top: 17%;
 left: 13%;
 //height: 80%;
   max-width: 80%;
