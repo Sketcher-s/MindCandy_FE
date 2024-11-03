@@ -187,8 +187,14 @@ const StyledMagnifier = styled(Magnifier)`
     86% {
       transform: translate(30, 120px); // 오른쪽으로 100px, 위에서 유지
     }
+      66% {
+      transform: translateY(-60px); // 위로 100px
+    }
     100% {
       transform: translate(80px, 0px); // 원래 높이로 내려오면서 오른쪽에서 시작 위치
+    }
+    120% {
+      transform: translate(10); // 원래 높이로 내려오면서 오른쪽에서 시작 위치
     }
   }
 `;
