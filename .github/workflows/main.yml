@@ -1,6 +1,6 @@
 name: React build
 on: 
-  push: # main 브랜치에 push 이벤트가 일어났을 때만 실행
+  push:
     branches:
       - main
 
@@ -8,41 +8,50 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source code # 레포지토리 체크아웃
+      - name: Checkout source code
         uses: actions/checkout@v3
 
-      - name: Cache node modules # node modules 캐싱
+      - name: Cache node modules
         uses: actions/cache@v3
         with:
-          path: node_modules # 프로젝트의 node_modules 경로로 설정
+          path: node_modules
           key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.OS }}-build-
             ${{ runner.OS }}-
 
-      - name: Install Dependencies # 의존성 설치
-        run: npm install # npm install을 실행할 경로로 설정
+      - name: Install Dependencies
+        run: npm install
 
-      - name: Build # React 빌드
-        run: npm run build # npm run build를 실행할 경로로 설정
+      - name: Build
+        run: npm run build
 
-      - name: Deploy # S3에 배포
+      - name: Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+
+      - name: Check build directory
+        run: ls -la ./build
+
+      - name: Deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 cp \
             --recursive \
-              --exclude ".git/*" \
-              --exclude ".github/*" \
-              --exclude ".vscode/*" \
-              --exclude ".env" \
-              --exclude "node_modules/*" \
-              --exclude ".gitignore" \
-              --exclude ".gitmessage.txt" \
-              --exclude ".prettierignore" \
-              --exclude ".DS_Store" \
+            --exclude ".git/*" \
+            --exclude ".github/*" \
+            --exclude ".vscode/*" \
+            --exclude ".env" \
+            --exclude "node_modules/*" \
+            --exclude ".gitignore" \
+            --exclude ".gitmessage.txt" \
+            --exclude ".prettierignore" \
+            --exclude ".DS_Store" \
             --acl public-read \
             --cache-control "no-cache" \
             --region ap-northeast-2 \
-            ./build/ s3://mindcandy-febucket # 버킷 이름으로 변경
+            ./build/ s3://mindcandy-febucket
