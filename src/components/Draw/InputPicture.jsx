@@ -107,11 +107,50 @@ function InputPicture() {
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
 
   // Recognition에서 받은 파일 데이터를 저장하는 함수
-  const handleRecognitionResponse = (data, pictureType, base64Images) => {
-    console.log("콘솔에 base64 이미지 출력:", base64Images);
-    console.log("blob 데이터: ", data);
-    console.log(pictureType);
+  // const handleRecognitionResponse = (data, pictureType, base64Images) => {
+  //   console.log("콘솔에 base64 이미지 출력:", base64Images);
+  //   console.log("blob 데이터: ", data);
+  //   console.log(pictureType);
 
+  //   const base64Data = base64Images.split(",")[1]; // "data:image/png;base64," 부분 제거
+  //   const imageBlob = base64ToBlob(base64Data); // Base64 데이터를 Blob으로 변환
+  //   const file = new File([imageBlob], `${pictureType}.png`, {
+  //     type: "image/png",
+  //   });
+  //   console.log("blob 파일 객체로 변환: ", file);
+
+  //   setImageFiles((prevFiles) => ({
+  //     ...prevFiles,
+  //     [pictureType]: file,
+  //   }));
+
+  //   // 파일을 URL로 변환하여 미리보기 URL 생성
+  //   const fileUrl = URL.createObjectURL(file);
+  //   setPreviewUrls((prev) => ({
+  //     ...prev,
+  //     [pictureType]: fileUrl,
+  //   }));
+
+  //   setImagePreviews((prev) => ({
+  //     ...prev,
+  //     [pictureType]: fileUrl, // 그림 데이터를 미리보기 상태에 저장
+  //   }));
+
+  //   // 추가된 부분: pictureRequestData 업데이트
+  //   setPictureRequestData((prevData) => [
+  //     ...prevData,
+  //     { pictureType, value: data.value }, // 'someValue'는 실제 데이터에 맞게 변경
+  //   ]);
+  // };
+
+
+// Recognition에서 받은 파일 데이터를 저장하는 함수
+const handleRecognitionResponse = (data, pictureType, base64Images) => {
+  console.log("콘솔에 base64 이미지 출력:", base64Images);
+  console.log("blob 데이터: ", data);
+  console.log(pictureType);
+
+  if (data.value) { // data.value가 유효한 경우에만 처리
     const base64Data = base64Images.split(",")[1]; // "data:image/png;base64," 부분 제거
     const imageBlob = base64ToBlob(base64Data); // Base64 데이터를 Blob으로 변환
     const file = new File([imageBlob], `${pictureType}.png`, {
@@ -138,10 +177,15 @@ function InputPicture() {
 
     // 추가된 부분: pictureRequestData 업데이트
     setPictureRequestData((prevData) => [
-      ...prevData,
-      { pictureType, value: data.value }, // 'someValue'는 실제 데이터에 맞게 변경
+      ...prevData.filter(item => item.pictureType !== pictureType),
+      { pictureType, value: data.value },
     ]);
-  };
+  } else {
+    console.log(`"${pictureType}"의 value가 유효하지 않습니다.`);
+  }
+};
+
+
 
   // 모든 이미지 파일을 모아서 배열로 서버로 전송하는 함수
   const handleSubmit = async () => {
