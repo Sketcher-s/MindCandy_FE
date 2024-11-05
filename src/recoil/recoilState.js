@@ -33,3 +33,9 @@ export const SidebarState = atom({
   key: 'SidebarState',
   default: false,
 });
+
+// loading 페이지에서 검사 결과에 대한 성공/실패 여부를 알아야 함
+export const loadingStatusState = atom({
+  key: 'loadingStatusState', // 고유한 key
+  default: null, // 초기값은 null
+});
