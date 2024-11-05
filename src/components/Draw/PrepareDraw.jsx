@@ -309,6 +309,8 @@ const Preparation = styled.div`
 //   align-items: center;
   display: flex;
 
+    padding-top: 0.05rem;
+
   ${theme.media.mobile`
   padding-top: 0.3rem;
 `}

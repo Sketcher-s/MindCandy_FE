@@ -557,32 +557,70 @@ const DrawModal = ({
           //   },
           // ]);
 
-          // 빈 값 또는 공백 문자열에 대한 처리
-          if (!value || value.trim() === "") {
-            console.log(`"${content}"의 인식 결과가 없습니다. 활성화 합니다.`);
-            setDisabledImages((prev) => ({ ...prev, [content]: false }));
-          } else {
-            console.log("Value:", value);
-            console.log(
-              `"${content}"의 인식 결과가 있습니다. 비활성화 합니다.`
-            );
-            setDisabledImages((prev) => ({ ...prev, [content]: true }));
-            console.log("======================");
-            console.log(disabledImages);
-            console.log("======================");
-          }
-        } else {
-          console.error("Recognition 요청 실패:", await response.text());
-        }
-      } catch (error) {
-        console.error("Recognition 요청 오류:", error.message);
-      }
+                          // 업데이트 로직
+                          setPictureRequestData((prevData) => {
+                            const newData = [...prevData];
+                            const index = newData.findIndex(item => item.pictureType === content.toUpperCase());
+                            if (index !== -1) {
+                                newData[index] = {
+                                    pictureType: content.toUpperCase(),
+                                    value: data.value || "", // 적절한 데이터 필드 사용
+                                };
+                            } else {
+                                newData.push({
+                                    pictureType: content.toUpperCase(),
+                                    value: data.value || "",
+                                });
+                            }
+                            return newData;
+                        });
 
-      onClose(); // 모달 창 닫기
-      // setIsButtonEnabled(disabledImages[ContentType.HOUSE] &disabledImages[ContentType.TREE] &disabledImages[ContentType.MALE] &disabledImages[ContentType.FEMALE] )
-      console.log(content.toUpperCase());
-    }
-  };
+  //         // 빈 값 또는 공백 문자열에 대한 처리
+  //         if (!value || value.trim() === "") {
+  //           console.log(`"${content}"의 인식 결과가 없습니다. 활성화 합니다.`);
+  //           setDisabledImages((prev) => ({ ...prev, [content]: false }));
+  //         } else {
+  //           console.log("Value:", value);
+  //           console.log(
+  //             `"${content}"의 인식 결과가 있습니다. 비활성화 합니다.`
+  //           );
+  //           setDisabledImages((prev) => ({ ...prev, [content]: true }));
+  //           console.log("======================");
+  //           console.log(disabledImages);
+  //           console.log("======================");
+  //         }
+  //       } else {
+  //         console.error("Recognition 요청 실패:", await response.text());
+  //       }
+  //     } catch (error) {
+  //       console.error("Recognition 요청 오류:", error.message);
+  //     }
+
+  //     onClose(); // 모달 창 닫기
+  //     // setIsButtonEnabled(disabledImages[ContentType.HOUSE] &disabledImages[ContentType.TREE] &disabledImages[ContentType.MALE] &disabledImages[ContentType.FEMALE] )
+  //     console.log(content.toUpperCase());
+  //   }
+  // };
+
+  // 인식 결과가 없을 경우의 처리
+  if (!data.value || data.value.trim() === "") {
+    console.log(`"${content.toUpperCase()}"의 인식 결과가 없습니다. 활성화 합니다.`);
+    setDisabledImages((prev) => ({ ...prev, [content.toUpperCase()]: false }));
+} else {
+    console.log("Value:", data.value);
+    console.log(`"${content.toUpperCase()}"의 인식 결과가 있습니다. 비활성화 합니다.`);
+    setDisabledImages((prev) => ({ ...prev, [content.toUpperCase()]: true }));
+}
+} else {
+console.error("Recognition 요청 실패:", await response.text());
+}
+} catch (error) {
+console.error("Recognition 요청 오류:", error.message);
+}
+
+onClose(); // 모달 창 닫기
+}
+};
 
   const ContentType = {
     HOUSE: "HOUSE",
