@@ -124,7 +124,7 @@ const ButtonTextH = styled(Text)`
 
 
 
-const Modal = ({close, title, message, withdrawal}) => {
+const Modal = ({close, title, message, withdrawal, onBack, onRefresh}) => {
 
 
     return (
@@ -133,20 +133,38 @@ const Modal = ({close, title, message, withdrawal}) => {
                   {title && <TitleText isTitle>{title}</TitleText>}
                   <MessageText hasTitle={!!title}>{message}</MessageText>
                     
-                    {withdrawal ? 
-                    (<ButtonWrapper>
-                      <ButtonH onClick={withdrawal}>
-                        <ButtonTextH>탈퇴</ButtonTextH>
-                      </ButtonH>
-                      <ButtonH onClick={close}>
-                        <ButtonTextH>취소</ButtonTextH>
-                      </ButtonH>
-                    </ButtonWrapper>) : (
-                      <Button onClick={close}>
-                        <ButtonText>확인</ButtonText>
-                      </Button>
-                    )
-                    }
+                  {withdrawal ? (
+                  <ButtonWrapper>
+                    <ButtonH onClick={withdrawal}>
+                      <ButtonTextH>탈퇴</ButtonTextH>
+                    </ButtonH>
+                    <ButtonH onClick={close}>
+                      <ButtonTextH>취소</ButtonTextH>
+                    </ButtonH>
+                  </ButtonWrapper>
+                  ) : onBack ? (
+                  <ButtonWrapper>
+                    <ButtonH onClick={onBack}>
+                      <ButtonTextH>뒤로가기</ButtonTextH>
+                    </ButtonH>
+                    <ButtonH onClick={close}>
+                      <ButtonTextH>닫기</ButtonTextH>
+                    </ButtonH>
+                  </ButtonWrapper>
+                  ) : onRefresh ? (
+                    <ButtonWrapper>
+                    <ButtonH onClick={onRefresh}>
+                      <ButtonTextH>새로고침</ButtonTextH>
+                    </ButtonH>
+                    <ButtonH onClick={close}>
+                      <ButtonTextH>닫기</ButtonTextH>
+                    </ButtonH>
+                  </ButtonWrapper>
+                  ) : (
+                  <Button onClick={close}>
+                    <ButtonText>확인</ButtonText>
+                  </Button>
+                  )}
                 </ModalWrapper> 
             </ModalContainer>
     )
