@@ -185,13 +185,31 @@ function InputPhoto() {
         console.log("Value type:", typeof value); // value 타입 확인 (여기서 'string'으로 나와야 함)
 
         // pictureType과 응답 데이터의 특정 필드를 value로 추가
-        setPictureRequestData((prevData) => [
-          ...prevData,
-          {
-            pictureType: pictureType, // 이미지 타입 (예: HOUSE, TREE, MALE, FEMALE)
-            value: value || "", // 서버 응답 데이터에서 필요한 필드 (예: 값이 들어가야 할 필드)
-          },
-        ]);
+        // setPictureRequestData((prevData) => [
+        //   ...prevData,
+        //   {
+        //     pictureType: pictureType, // 이미지 타입 (예: HOUSE, TREE, MALE, FEMALE)
+        //     value: value || "", // 서버 응답 데이터에서 필요한 필드 (예: 값이 들어가야 할 필드)
+        //   },
+        // ]);
+
+        // 업데이트 로직
+        setPictureRequestData((prevData) => {
+          const newData = [...prevData];
+          const index = newData.findIndex(item => item.pictureType === pictureType);
+          if (index !== -1) {
+              newData[index] = {
+                  pictureType: pictureType,
+                  value: data.value || "", // 적절한 데이터 필드 사용
+              };
+          } else {
+              newData.push({
+                  pictureType: pictureType,
+                  value: data.value || "",
+              });
+          }
+          return newData;
+      });
 
         // 빈 값 또는 공백 문자열에 대한 처리
         if (!value || value.trim() === "") {
