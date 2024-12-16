@@ -10,6 +10,7 @@ import { useRecoilState } from 'recoil';
 import { LoginState } from '../recoil/recoilState';
 import noneData from '../assets/mypage/noneData.svg';
 import listMy from '../assets/mypage/listMy.svg';
+import { debounce } from 'lodash';
 
 // 주요 컨테이너
 const MyPageContainer = styled.div`
@@ -214,7 +215,7 @@ const EntryContainer = styled.div`
   min-height: 30%;
   justify-content: flex-start;
   align-items: center;
-  gap: 0.625rem;
+  gap: 0.85rem;
   cursor: pointer;
 `;
 
@@ -223,18 +224,28 @@ const EntryImage = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 20%;
+  width: 25%;
   height: 100%;
   background-image: url(${listMy});
-  background-size: cover;  // 배경 이미지가 부모 영역을 채우도록 설정
+  background-size: contain;  // 배경 이미지가 부모 영역을 채우도록 설정
   background-repeat: no-repeat;  // 배경 이미지가 반복되지 않도록 설정
+  background-position: center;
+  position: relative;
 `;
 
 const ListImage = styled.img`
-  display: flex;
+  // display: flex;
+  position: absolute;
+  bottom: 18%;
+  right: 23%;
   width: 60%;
-  height: 80%;
+  height: 70%;
   object-fit: contain;  // 이미지가 부모 영역 내에 맞춰서 렌더링되도록 설정
+  ${theme.media.mobile`
+    bottom: 33%;
+    width: 60%;
+    height: 40%;
+  `}
 `;
 
 const EntryCol = styled.div`
@@ -321,9 +332,8 @@ const MyPage = () => {
 
 
   useEffect(() => {
-    const handleScroll = () => {
+    const handleScroll = debounce(() => { // 스크롤에 대해서 디바운싱 적용
       console.log('scrolling...');
-      // listWrapperRef.current를 사용하여 스크롤 위치 접근
       if (listRef.current) {
         const { scrollTop, scrollHeight, clientHeight } = listRef.current;
         if (clientHeight + scrollTop + 50 >= scrollHeight && !loading) {
@@ -331,7 +341,7 @@ const MyPage = () => {
           loadMoreData();
         }
       }
-    };
+    }, 300); // 300ms의 디바운싱 시간 설정
   
     const listWrapper = listRef.current;
     if (listWrapper) {
@@ -339,7 +349,7 @@ const MyPage = () => {
     }
     return () => {
       if (listWrapper) {
-        listWrapper.removeEventListener('scroll', handleScroll);
+        listWrapper.removeEventListener('scroll', handleScroll); // 이벤트 리스너를 제거 -> 메모리 누수 방지
       }
     };
   }, [loadMoreData, loading]); // 의존성 배열 업데이트
@@ -441,7 +451,7 @@ const MyPage = () => {
             </ListWrapper>
           </ListContainer>
         </ContentContainer>
-        {modalStatus === 'doubleCheck' && <Modal title={`${userInfo.name}님`} message={'회원 탈퇴 시, 모든 검사 기록이 삭제됩니다. 확인 버튼 클릭 시 탈퇴가 완료됩니다.'} withdrawal={handleWithDraw} close={handleClose} />}
+        {modalStatus === 'doubleCheck' && <Modal message={<>{'회원 탈퇴 시, '}<br/>{'모든 검사 기록이 삭제됩니다.'}<br/>{'확인 버튼 클릭 시 탈퇴가 완료됩니다.'}</> } withdrawal={handleWithDraw} close={handleClose} />}
         {modalStatus === 'alert' && <Modal title={'그동안 이용해주셔서 감사합니다.'} messgae='' close={moveToMain}></Modal>}
       </MyPageWrapper>
     </MyPageContainer>
@@ -457,7 +467,8 @@ const UserInfo = styled.div`
 
 const BeforeList = styled.img`
   display: flex;
-  width: 80%;
+  width: 50%;
+  align-self: center;
 `;
 
 // 회원탈퇴

@@ -94,15 +94,15 @@ function ResultContent({analysisResult}) {
     {parsedResults.length > 0 ? (
       <SectionContent>
         {parsedResults.map((section, index) => (
-          <div key={index} style={{ marginBottom: '16px' }}>
-            <p style={{ fontWeight: 'bold' }}>{`[${section.keyword}]`}</p>
-            <p>{section.content}</p>
-          </div>
+          <SectionWrapper key={index}>
+            <SectionKeyword>{`[${section.keyword}]`}</SectionKeyword>
+            <SectionText>{section.content}</SectionText>
+          </SectionWrapper>
         ))}
-      </SectionContent>
+    </SectionContent>
     ) : (
       <SectionContent>
-        <p>{analysisResult}</p> {/* parsedResults가 없을 때 analysisResult를 그대로 렌더링 */}
+        <SectionText>{analysisResult}</SectionText> {/* parsedResults가 없을 때 analysisResult를 그대로 렌더링 */}
       </SectionContent>
     )}
       <Accordion>
@@ -111,7 +111,8 @@ function ResultContent({analysisResult}) {
           <Icon isOpen={isOpen.htp} />
         </AccordionHeader>
         <AccordionBody isOpen={isOpen.htp}>
-          HTP 그림 심리 검사는 개인의 심리 상태를 탐색하고 이해하는 데 중요한 도구입니다. 그러나 이 검사 결과에만 의존하기보다는, 다양한 접근을 통해 마음을 이해하려는 노력도 함께해 주시기 바랍니다. 아이의 마음을 더 깊이 이해하기 위해서는 시간을 두고 여러 차례에 걸쳐 검사를 해보는 것이 좋습니다
+          HTP 그림 심리 검사는 개인의 심리 상태를 탐색하고 이해하는 데 중요한 도구입니다. <br/> 그러나 이 검사 결과에만 의존하기보다는, 다양한 접근을 통해 마음을 이해하려는 노력도 함께해 주시기 바랍니다. 
+          <br/>아이의 마음을 더 깊이 이해하기 위해서는 시간을 두고 여러 차례에 걸쳐 검사를 해보는 것이 좋습니다.
         </AccordionBody>
       </Accordion>
       <Accordion>
@@ -120,7 +121,7 @@ function ResultContent({analysisResult}) {
           <Icon isOpen={isOpen.analysis} />
         </AccordionHeader>
         <AccordionBody isOpen={isOpen.analysis}>
-        검사를 통해 얻은 결과는 오직 AI 모델 학습에만 사용됩니다. 여러분의 개인 데이터는 이외의 어떠한 목적으로도 사용되지 않음을 약속드립니다.
+        검사를 통해 얻은 결과는 오직 AI 모델 학습에만 사용됩니다. <br/>여러분의 개인 데이터는 이외의 어떠한 목적으로도 사용되지 않음을 약속드립니다.
         </AccordionBody>
       </Accordion>
     </Resultcontent>
@@ -130,7 +131,9 @@ export default ResultContent;
 
 
 const Resultcontent = styled.div`
-
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 ${theme.media.mobile`
   height: auto;
 `}
@@ -159,7 +162,7 @@ const Content = styled.p`
 
 `;
 const Accordion = styled.div`
-  width: 100%;
+  width: 85%;
   border: 0.0625rem solid #C3C1F1;
   border-radius:0.625rem;
   margin-bottom:1.25rem;
@@ -184,7 +187,7 @@ const AccordionHeader = styled.div`
 `;
 
 const Icon = styled.span`
-  border: solid #96B5F3;
+  border: solid #C3C1F1;
   border-width: 0 0.125rem 0.125rem 0;
   padding: 0.1875rem;
   transform: ${props => props.isOpen ? 'rotate(-135deg)' : 'rotate(45deg)'};
@@ -192,7 +195,7 @@ const Icon = styled.span`
 `;
 
 const AccordionBody = styled.div`
-  padding: 1.25rem 1.625rem;
+  padding: 0 1.625rem 1.25rem 1.625rem;
   font-size: 0.875rem;
   color: #666;
   display: ${props => props.isOpen ? 'block' : 'none'};
@@ -215,15 +218,31 @@ const SectionTitle = styled.h2`
   `}
 `;
 
-const SectionContent = styled.p`
+const SectionContent = styled.div`
+  display: flex;
+  width: 100%;
+  justify-content: center;
   font-size: 0.9rem;
   color: #666;
 font-family: Pretendard;
 font-weight: 600;
-text-align: justified; 
 align-items: center;
  
   ${theme.media.mobile`  // 모바일에서는 글자 크기를 조금 줄임
     font-size: 0.8rem;
   `}
+`;
+
+const SectionWrapper = styled.div`
+  margin-bottom: 16px;
+  width: 100%;
+`;
+
+const SectionKeyword = styled.p`
+  font-weight: bold;
+`;
+
+const SectionText = styled.div`
+  width: 85%;
+  margin: 4% 0;
 `;

@@ -17,6 +17,7 @@ import treeImg from '../assets/Result/treeImg.svg';
 import manImg from '../assets/Result/manImg.svg';
 import womanImg from '../assets/Result/womanImg.svg';
 import axios from 'axios';
+import listMy from '../assets/mypage/listMy.svg'
 
 function Result() {
   const location = useLocation();
@@ -41,6 +42,8 @@ function Result() {
   const [currentStep, setCurrentStep] = useState(0); // 현재 선택된 페이지 (0부터 시작)
   const [modalImage, setModalImage] = useState(null); // 모달에 띄울 이미지
   const [resultContent, setResultContent] = useState(''); // 종합 결과
+  // 종합 결과 이미지
+  const [totalImage, setTotalImage] = useState('');
 
   useEffect(() => {
     // 모바일 환경인지 감지
@@ -77,42 +80,47 @@ function Result() {
   }, [currentStep, isMobile]);
 
   const handleMyPageClick = async () => {
-    if (!title || title.length > 15) {
-      alert('제목은 필수이며, 15자를 넘지 말아주세요.');
-      return;
-    }
+    // if (!title || title.length > 15) {
+    //   alert('제목은 필수이며, 15자를 넘지 말아주세요.');
+    //   return;
+    // }
     //Navigate('/mypage', { state: { resultId, title } });
-    console.log('제목: ', title);
-    console.log('id: ', resultId);
     if (!jwtToken) {
       console.error('토큰오류임');
       return;
     }
-    try {
-      const response = await axios.patch('https://dev.catchmind.shop/api/picture/title', 
-        { resultId, title }, // 데이터
-        {
+    if(title != null){
+      console.log('제목: ', title);
+      console.log('id: ', resultId);
+    
+      try {
+        const response = await axios.patch('https://dev.catchmind.shop/api/picture/title', 
+          { resultId, title }, // 데이터
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${jwtToken}`,
+            },
+          },
+        );
+        // 제목 수정 후 서버에서 최신 데이터 다시 가져오기
+        const updatedResponse = await axios.get(`https://dev.catchmind.shop/api/picture/${resultId}`, {
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${jwtToken}`,
           },
-        },
-      );
-      // 제목 수정 후 서버에서 최신 데이터 다시 가져오기
-      const updatedResponse = await axios.get(`https://dev.catchmind.shop/api/picture/${resultId}`, {
-        headers: {
-          'Authorization': `Bearer ${jwtToken}`,
-        },
-      });
-
-      const updatedData = updatedResponse.data;
-      setTitle(updatedData.result.title);  // 업데이트된 제목 반영
-
-      // 마이페이지로 이동 (상태 전달 없이 서버에서 데이터 새로 불러오도록)
+        });
+  
+        const updatedData = updatedResponse.data;
+        setTitle(updatedData.result.title);  // 업데이트된 제목 반영
+  
+        // 마이페이지로 이동 (상태 전달 없이 서버에서 데이터 새로 불러오도록)
+        Navigate('/mypage', { state: { resultId } });
+        console.log('제목 저장: ', response);
+      } catch (error) {
+        console.error('제목 저장 실패:', error);
+      }
+    }else{
       Navigate('/mypage', { state: { resultId } });
-      console.log('제목 저장: ', response);
-    } catch (error) {
-      console.error('제목 저장 실패:', error);
     }
   };
 
@@ -158,6 +166,7 @@ function Result() {
           setAnalysisResult(responseData.pictureList[0]?.content);  // 첫 번째 컨텐츠
           setPictureType(responseData.pictureList[0]?.pictureType); // 타입
           setResultContent(responseData.result.content); // 종합 결과
+          setTotalImage(responseData.picutreList[0].imageUrl);
         } else {
           throw new Error('No valid response data');
         }
@@ -177,7 +186,7 @@ function Result() {
 
   const validateTitle = (inputTitle) => {
     if (inputTitle.length > 15) {
-      setError('제목은 15자를 넘지 말아주세요.');
+      setError('제목은 15자 이내로 입력해주세요.');
       setCanSave(false);
     } else if (!inputTitle) {
       setError('제목을 입력해주세요.');
@@ -193,9 +202,9 @@ function Result() {
     if (currentStep < totalSteps - 1) {
       const nextStep = currentStep + 1;
       setCurrentStep(nextStep);
-      setPictureImg(pictureList[nextStep]?.imageUrl || pictureList[0]?.imageUrl); // 맨 마지막엔 첫 이미지로
+      setPictureImg(pictureList[nextStep]?.imageUrl || pictureList[0].imageUrl); // 맨 마지막엔 첫 이미지로
       setAnalysisResult(pictureList[nextStep]?.content || pictureList[0]?.content); // 맨 마지막엔 첫 번째 컨텐츠로
-      setPictureType(pictureList[nextStep]?.pictureType || '종합'); // 타입도 첫 번째로
+      setPictureType(pictureList[nextStep]?.pictureType);
     } 
   };
 
@@ -220,13 +229,29 @@ function Result() {
   const handleModalClose = () => {
     setModalImage(null);
   };
+
+  // 영어 -> 한글 타입 변환
+  const getPictureTypeName = (type) => {
+    switch (type) {
+      case "HOUSE":
+        return `"집"`; // 따옴표 포함
+      case "TREE":
+        return `"나무"`; // 따옴표 포함
+      case "MALE":
+        return `"남자 사람"`; // 따옴표 포함
+      case "FEMALE":
+        return `"여자 사람"`; // 따옴표 포함
+      default:
+        return "모든"; // 기본적으로 원래 값을 따옴표 포함하여 반환
+    }
+  };
   
   return (
     <div>
       <Wrapper>
         <DrawingSection>
           <TopContainer>
-            <Title>&ldquo;{pictureType}&rdquo; 그림에 대한 검사 결과</Title>
+            <Title>{getPictureTypeName(pictureType)} 그림에 대한 검사 결과</Title>
             {!isMobile && currentStep === totalSteps - 1 && (
               <InfoContainer>
                 <LookContainer onClick={() => handleModalOpen(0)}>
@@ -257,11 +282,16 @@ function Result() {
               <ImageContainer>
                 <StyledImage src={pictureList[slideshowIndex]?.imageUrl || pictureList[0]?.imageUrl} alt="Slideshow Image" />
               </ImageContainer>
-            ) : (
-              <ImageContainer>
-                <StyledImage src={pictureImg} alt="Drawing for Analysis" />
+            ) : currentStep === totalSteps - 1 ? (
+                <TotalImageContainer >
+                  <StyledImage1 src={pictureImg} alt="Drawing for Analysis"/>
+                </TotalImageContainer>
+              ) : (
+                <ImageContainer>
+                 <StyledImage src={pictureImg} alt="Drawing for Analysis"/>
               </ImageContainer>
             )}
+            
             <NextBtn onClick={handleNextClick} disabled={currentStep === totalSteps - 1}>
               <img
                 src={currentStep === totalSteps - 1 ? nextRDis : nextR}
@@ -286,7 +316,7 @@ function Result() {
                 onChange={handleTitleChange}
                 placeholder="그림의 제목을 입력하세요"
                 // readOnly={!isEditing}
-                isError={error.length > 0}
+                //isError={error.length > 0}
               />
             </TitleSection>
           )}
@@ -313,11 +343,27 @@ export default Result;
 
 // 모달 컴포넌트
 const Modal = ({ image, onClose, type }) => {
+
+  // 영어 -> 한글 타입 변환
+  const getPictureTypeName = (type) => {
+    switch (type) {
+      case "HOUSE":
+        return "집"; // 따옴표 포함
+      case "TREE":
+        return "나무"; // 따옴표 포함
+      case "MALE":
+        return "남자 사람"; // 따옴표 포함
+      case "FEMALE":
+        return "여자 사람"; // 따옴표 포함
+      default:
+        return "집"; // 기본적으로 원래 값을 따옴표 포함하여 반환
+    }
+  };
   return (
     <ModalWrapper onClick={onClose}>
       <ModalContent>
-        <ModalTitle>{type}</ModalTitle>
-        <img src={image} alt="Modal" />
+        <ModalTitle>{getPictureTypeName(type)}</ModalTitle>
+        <img src={image} alt="Modal" style={{ width: '80%', height: '80%', objectFit: 'contain' }}/>
         <Button><ButtonText>닫기</ButtonText></Button>
       </ModalContent>
     </ModalWrapper>
@@ -383,6 +429,8 @@ const ButtonText = styled.h1`
 const Wrapper = styled.div`
   width: 100%;
   overflow: hidden;
+
+
   background: #f3f3f6;
   display: flex;
   flex-direction: column;
@@ -410,7 +458,8 @@ const DrawingSection = styled.div`
 `;
 const TitleSection = styled.div`
   display: flex;
-  width: 100%;
+  width: 85%;
+  margin-top: 1rem;
   ${theme.media.mobile`  
     margin-top: 1rem;
   `}
@@ -421,7 +470,7 @@ const TitleSection = styled.div`
 // `;
 
 const TitleInput = styled.input`
-  width: 90%;
+  width: 100%;
   height: 1.875rem;
   font-size: 1.625rem;
   font-weight: bold;
@@ -429,9 +478,9 @@ const TitleInput = styled.input`
   border-bottom: 0.125rem solid transparent;
   &:focus {
     outline: none;
-    border-bottom: 0.125rem solid #6487e2;
+    border-bottom: 0.125rem solid #A49EE7;
   }
-  border-bottom-color: ${props => props.isError ? 'red' : 'transparent'};
+  border-bottom-color: ${props => props.isError ? '#A49EE7' : 'transparent'};
   &::placeholder {
     color: rgb(177, 178, 184);
     ${theme.media.mobile`
@@ -439,7 +488,7 @@ const TitleInput = styled.input`
     `}
   }
   ${theme.media.mobile`
-    width:80%;
+    width:100%;
     font-size: 0.9rem;
   `}
 `;
@@ -466,11 +515,51 @@ display: flex;
   //border: 1px solid #E0E1E9
 `;
 
+const StyledImage1 = styled.img`
+display: flex;
+width: 70%;
+position: absolute;
+top: 10%;
+left: 13%;
+//height: 80%;
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain; // 이미지 비율을 유지하면서 컨테이너에 맞춰 조정
+   ${theme.media.mobile`
+    font-size: 0.9rem;
+    max-height: 11.6rem;
+  `}
+  //border: 1px solid #E0E1E9
+`;
+
+// 마지막 페이지에 배경 이미지 삽입
+const TotalImageContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+  height: 30rem;
+  min-width: 80%;
+  background-image: url(${listMy}); // 배경 이미지 설정
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 8px;
+  position: relative;
+
+  ${theme.media.mobile`
+    max-height: 11.6rem;
+  `}
+`;
+
+
 const ErrorMessage = styled.p`
-  color: red;
+  width: 100%;
+  color: #A49EE7;
   font-size: 0.75rem;
   margin-top: 0.5rem;
   font-weight: 200;
+  text-align: left;
 `;
 
 const DrawResult = styled.div`

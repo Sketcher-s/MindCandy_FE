@@ -35,9 +35,35 @@ ${theme.media.desktop`
  gap: 1.875rem;
 `}
 `
+
+// 텍스트 스타일 (공통 부분을 재사용)
+const TitleText = styled.div`
+  text-align: center;
+  color: ${(props) => props.color || "#27282B"};
+  font-family: 'Pretendard';
+  font-weight: ${(props) => props.fontWeight || "700"};
+  line-height: 1.5rem;
+  word-wrap: break-word;
+  margin-bottom: ${(props) => (props.isTitle ? "1rem" : "0")}; // Title에만 아래 마진
+
+  ${theme.media.mobile`
+    font-size: 0.8rem;
+  `}
+
+  ${theme.media.desktop`
+    font-size: 1rem;
+  `}
+`;
+
+const MessageText = styled(TitleText)`
+  margin-bottom: ${(props) => (props.hasTitle ? "0" : "0.5rem")}; // title이 없으면 하단 여백 증가
+  color: ${(props) => props.color || "#3F4045"};
+  font-weight: 600;
+`;
+
 // 텍스트 스타일 (공통 부분을 재사용)
 const Text = styled.div`
-  max-width: 19.375rem; // 310px to rem
+  //max-width: 19.375rem; // 310px to rem
   text-align: center;
   color: ${(props) => props.color || "#27282B"};
   font-family: 'Pretendard';
@@ -62,11 +88,11 @@ const ButtonWrapper = styled.div`
 
 // 버튼 2개일 때
 const ButtonH = styled.button`
-  width: 6rem;
+  width: 40%;
   height: 2.75rem; // 44px to rem
   padding-left: 0.5rem; // 20px to rem
   padding-right: 0.5rem; // 20px to rem
-  background: #6487E2;
+  background: #9386E0;
   border-radius: 0.25rem; // 4px to rem
   justify-content: center;
   border: none;
@@ -92,35 +118,53 @@ const ButtonText = styled(Text)`
 
 // 버튼 2개일 때
 const ButtonTextH = styled(Text)`
-  width: 5rem; // 120px to rem
+  width: 100%;
   color: white;
 `;
 
 
 
-const Modal = ({close, title, message, withdrawal}) => {
+const Modal = ({close, title, message, withdrawal, onBack, onRefresh}) => {
 
 
     return (
         <ModalContainer>
                 <ModalWrapper>
-                    <Text>{title}</Text>
-                    <Text color='#3F4045' fontWeight="600">{message}</Text>
+                  {title && <TitleText isTitle>{title}</TitleText>}
+                  <MessageText hasTitle={!!title}>{message}</MessageText>
                     
-                    {withdrawal ? 
-                    (<ButtonWrapper>
-                      <ButtonH onClick={withdrawal}>
-                        <ButtonTextH>탈퇴</ButtonTextH>
-                      </ButtonH>
-                      <ButtonH onClick={close}>
-                        <ButtonTextH>취소</ButtonTextH>
-                      </ButtonH>
-                    </ButtonWrapper>) : (
-                      <Button onClick={close}>
-                        <ButtonText>확인</ButtonText>
-                      </Button>
-                    )
-                    }
+                  {withdrawal ? (
+                  <ButtonWrapper>
+                    <ButtonH onClick={withdrawal}>
+                      <ButtonTextH>탈퇴</ButtonTextH>
+                    </ButtonH>
+                    <ButtonH onClick={close}>
+                      <ButtonTextH>취소</ButtonTextH>
+                    </ButtonH>
+                  </ButtonWrapper>
+                  ) : onBack ? (
+                  <ButtonWrapper>
+                    <ButtonH onClick={onBack}>
+                      <ButtonTextH>뒤로가기</ButtonTextH>
+                    </ButtonH>
+                    <ButtonH onClick={close}>
+                      <ButtonTextH>닫기</ButtonTextH>
+                    </ButtonH>
+                  </ButtonWrapper>
+                  ) : onRefresh ? (
+                    <ButtonWrapper>
+                    <ButtonH onClick={onRefresh}>
+                      <ButtonTextH>새로고침</ButtonTextH>
+                    </ButtonH>
+                    <ButtonH onClick={close}>
+                      <ButtonTextH>닫기</ButtonTextH>
+                    </ButtonH>
+                  </ButtonWrapper>
+                  ) : (
+                  <Button onClick={close}>
+                    <ButtonText>확인</ButtonText>
+                  </Button>
+                  )}
                 </ModalWrapper> 
             </ModalContainer>
     )

@@ -9,9 +9,21 @@ import { LoginState } from "../../recoil/recoilState";
 import DrawModal from "./DrawModal"; // 위에서 만든 모달 컴포넌트를 import
 import { ReactComponent as Photochecktrue } from "../../assets/Draw/photochecktrue.svg";
 import { ReactComponent as Photocheckfalse } from "../../assets/Draw/photocheckfalse.svg";
+import { useSetRecoilState } from "recoil";
+import { loadingStatusState } from "../../recoil/recoilState";
+
+// loading 상태에 대해서 상위 컴포넌트에서 loading 페이지로 넘겨줘야 함
+// 성공했을 때는 navigate로 result 페이지로 이동하면 되지만,
+// 실패했을 때는 isLoading의 값이 업데이트 될 수 없음..
+// recoil로 전역적 상태관리를 해야함
+const LoadingStatus = {
+  Loading: "Loading",
+  Fail: "Fail"
+}; 
 
 function InputPicture() {
   const Navigate = useNavigate();
+  const setLoadingStatus = useSetRecoilState(loadingStatusState);
 
   // 로그인 상태
   const [isLoggedIn, setIsLoggedIn] = useRecoilState(LoginState);
@@ -261,6 +273,8 @@ const handleRecognitionResponse = (data, pictureType, base64Images) => {
         }
       );
 
+      setLoadingStatus(LoadingStatus.Loading); // 로딩중..
+
       if (response.ok) {
         const data = await response.json();
         console.log("검사 요청 성공:", data);
@@ -271,11 +285,12 @@ const handleRecognitionResponse = (data, pictureType, base64Images) => {
         });
       } else {
         console.error("검사 요청 실패:", await response.text());
+        setLoadingStatus(LoadingStatus.Fail);
       }
     } catch (error) {
       console.error("검사 요청 오류:", error.message);
-    } finally {
-      setIsLoading(false);
+      setLoadingStatus(LoadingStatus.Fail);
+      console.log("inputpicture에서 loading보내는 값: ", loadingStatusState);
     }
   };
 
@@ -284,7 +299,8 @@ const handleRecognitionResponse = (data, pictureType, base64Images) => {
     const { imageData } = state;
     console.log(imageData);
     console.log("완료 버튼 클릭");
-    Navigate("/loading", { state: { imageData } });
+    const loadingImg = imagePreviews.HOUSE;
+    Navigate("/loading", { state: { loadingImg } });
     handleSubmit(imageData); // 서버로 이미지 전송
   };
 
@@ -297,11 +313,7 @@ const handleRecognitionResponse = (data, pictureType, base64Images) => {
 
   return (
     <OuterContainer>
-      {isLoading && (
-        <>
-          <Loading />
-        </>
-      )}
+      {loadingStatusState === LoadingStatus.Loading && <Loading />}
       <InnerContainer>
         <InnerWrapper>
           <OneBox>
