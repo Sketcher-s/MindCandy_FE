@@ -228,7 +228,7 @@ const Register = () => {
           </Button>
         </ButtonWrapper>
         {modalStatus === 'checkPlease' && <Modal title='이메일 중복 체크를 진행해주세요.' message='' close={handleClose}></Modal>}
-        {open && <Modal title="환영합니다!" message={<>{`${userName}님, 회원가입이 완료되었습니다.`}<br/>{`Catch Mind에서 그림 심리 검사를 진행해보세요!`}</>} close={moveToLogin} />}
+        {open && <Modal title="환영합니다!" message={`${userName}님, 회원가입이 완료되었습니다. 마음사탕에서 그림 심리 검사를 진행해보세요!`} close={moveToLogin} />}
       </JoinWrapper>
     </LoginContainer>
   );
