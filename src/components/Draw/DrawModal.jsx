@@ -13,6 +13,13 @@ import { ReactComponent as Ptrash } from "../../assets/Draw/Ptrash.svg";
 import { ReactComponent as Draw } from "../../assets/Draw/Draw.svg";
 import { ReactComponent as ErasePart } from "../../assets/Draw/ErasePart.svg";
 import { ReactComponent as EraseAll } from "../../assets/Draw/EraseAll.svg";
+import { ReactComponent as PencilFrame } from "../../assets/Draw/PencilFrame.svg";
+import { ReactComponent as Gsmallcircle } from "../../assets/Draw/Gsmallcircle.svg";
+import { ReactComponent as Bsmallcircle } from "../../assets/Draw/Bsmallcircle.svg";
+import { ReactComponent as Gmedcircle } from "../../assets/Draw/Gmedcircle.svg";
+import { ReactComponent as Bmedcircle } from "../../assets/Draw/Bmedcircle.svg";
+import { ReactComponent as Gbigcircle } from "../../assets/Draw/Gbigcircle.svg";
+import { ReactComponent as Bbigcircle } from "../../assets/Draw/Bbigcircle.svg";
 import { atom } from "recoil";
 import {} from "recoil";
 import { useRecoilState } from "recoil";
@@ -56,9 +63,19 @@ const DrawModal = ({
   //hover
   // const [isHovered, setIsHovered] = useState(false);
   const [isButtonClicked, setIsButtonClicked] = useState("Ppencil");
+  // isToggled 상태를 사용하여 현재 어떤 컴포넌트를 보여줄지 결정
+  const [isToggled, setIsToggled] = useState("GsmallcircleStyle");
+
+  //const [isCircleToggled, setIsCircleToggled] = useState(false); // 상태 추가: 원 상태 토글을 위한 상태
+
+  const [isSmallCircleToggled, setIsSmallCircleToggled] = useState(false); // 작은 원 상태
+  const [isMedCircleToggled, setIsMedCircleToggled] = useState(false); // 중간 원 상태
+  const [isBigCircleToggled, setIsBigCircleToggled] = useState(false); // 큰 원 상태
 
   const [hoverGpencil, setHoverGpencil] = useState(false);
   const [hoverGeraser, setHoverGeraser] = useState(false);
+  //지우개 프레임 추가
+  const [showPencilFrame, setShowPencilFrame] = useState(false);
   const [hoverGtrash, setHoverGtrash] = useState(false);
 
   //fileupload에서 받은 데이터를 다시 넣기 위한 부분
@@ -86,6 +103,26 @@ const DrawModal = ({
     MALE: null,
     FEMALE: null,
   });
+
+  // 클릭 핸들러 함수
+  // 각 원에 대한 클릭 핸들러
+  const handleSmallCircleClick = () => {
+    setIsSmallCircleToggled(!isSmallCircleToggled);
+    changePenSize(minPenSize); // 작은 원 클릭 시 최소 펜 크기 설정
+    handleColorChange("white");
+  };
+
+  const handleMedCircleClick = () => {
+    setIsMedCircleToggled(!isMedCircleToggled);
+    changePenSize(medPenSize); // 작은 원 클릭 시 최소 펜 크기 설정
+    handleColorChange("white");
+  };
+
+  const handleBigCircleClick = () => {
+    setIsBigCircleToggled(!isBigCircleToggled);
+    changePenSize(maxPenSize); // 작은 원 클릭 시 최소 펜 크기 설정
+    handleColorChange("white");
+  };
 
   // 로그인 상태
   const [isLoggedIn, setIsLoggedIn] = useRecoilState(LoginState);
@@ -220,19 +257,34 @@ const DrawModal = ({
 
   // 펜의 최소 두께와 최대 두께
   const minPenSize = 1;
+  const medPenSize = 5;
   const maxPenSize = 10;
 
-  // 펜 사이즈 상태
-  const [penSize, setPenSize] = useState({
-    minWidth: minPenSize,
-    maxWidth: maxPenSize,
-  });
+  // 펜 크기 상태 - 단일 숫자로 관리
+  const [penSize, setPenSize] = useState(1);
 
-  const changePenSize = (maxPenSize) => {
-    setPenSize(maxPenSize);
+  // 펜 사이즈 상태
+  // const [penSize, setPenSize] = useState({
+  //   minWidth: minPenSize,
+  //   medWidth: medPenSize,
+  //   maxWidth: maxPenSize,
+  // });
+
+  // const changePenSize = (maxPenSize) => {
+  //   setPenSize(maxPenSize);
+  // };
+
+  const changePenSize = (size) => {
+    setPenSize(size);
   };
 
-  const handleClick = (buttonName) => {
+  const [activeTool, setActiveTool] = useState(null); // 현재 활성화된 도구의 상태
+
+  //지우개 관련 ..
+  const handleClick = (buttonName, tool) => {
+    setShowPencilFrame(!showPencilFrame); // 펜슬 프레임 보이기 상태 토글
+    setIsToggled(!isToggled); // 현재 상태를 반대로 토글
+    setActiveTool(activeTool === tool ? null : tool);
     setIsButtonClicked(buttonName === isButtonClicked ? null : buttonName); // 현재 클릭된 버튼이면 상태를 null로 변경하고 아니면 버튼 이름으로 변경
     if (buttonName === "Gtrash") {
       handleClear(); // 클릭 시 지우기 기능 호출
@@ -396,104 +448,6 @@ const DrawModal = ({
     return new Blob([ab], { type: mimeString });
   };
 
-  // const uploadImageToServer = async () => {
-  //   // const token = localStorage.getItem('jwtToken');
-  //   if (!jwtToken) {
-  //     console.error("인증권한 없음");
-  //     return;
-  //   }
-
-  //   console.log("JWT Token:", jwtToken);
-
-  //   if (signatureCanvasRef.current) {
-  //     const canvas = signatureCanvasRef.current.getCanvas();
-  //     let imageData = canvas.toDataURL("image/png"); // 원본 이미지 데이터
-
-  //     // 화면 크기가 768px 미만인 경우, 이미지 크기를 조정합니다.
-  //     if (window.innerWidth < 768) {
-  //       // 원본 캔버스에서 이미지를 크게 조정
-  //       imageData = resizeCanvasImage(canvas, 500, 500, "white"); // 모바일에서는 800x600 크기로 조정
-  //     }
-
-  //     const blob = dataURLtoBlob(imageData);
-  //     console.log(blob); // Blob 데이터 확인
-  //     const formData = new FormData();
-  //     formData.append("file", blob, "image.png");
-  //     formData.append("pictureType", JSON.stringify({ pictureType: "HOUSE" })); // pictureType을 JSON 객체로 추가
-
-  //     // FormData 내용 로그 출력
-  //     for (let [key, value] of formData.entries()) {
-  //       console.log(`${key}: ${value}`);
-  //     }
-
-  //     // 이미지 파일 크기 로그 출력
-  //     console.log("이미지 파일 크기:", blob.size, "bytes");
-
-  //     console.log("Sending POST request to server with form data:");
-  //     setIsLoading(true);
-
-  //     try {
-  //       const response = await fetch(
-  //         "https://dev.catchmind.shop/api/picture/recognition",
-  //         {
-  //           method: "POST",
-  //           headers: {
-  //             Authorization: `Bearer ${jwtToken}`,
-  //           },
-  //           body: formData,
-  //         }
-  //       );
-
-  //       if (!response.ok) {
-  //         const errorText = await response.text();
-  //         console.error(
-  //           `HTTP error! status: ${response.status}, message: ${errorText}`
-  //         );
-  //         throw new Error(
-  //           `HTTP error! status: ${response.status}, message: ${errorText}`
-  //         );
-  //       }
-
-  //       let data = await response.json();
-  //       console.log("File upload successful:", data);
-  //       //TODO => 이부분 에러남
-  //       handleClear(); // 이미지 업로드 후 캔버스 클리어
-  //     } catch (error) {
-  //       console.error("File upload failed:", error.message);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   }
-  // };
-
-  // 이미지 크기 조정을 위한 함수
-  // function resizeCanvasImage(
-  //   originalCanvas,
-  //   targetWidth,
-  //   targetHeight,
-  //   backgroundColor = "white"
-  // ) {
-  //   const tempCanvas = document.createElement("canvas");
-  //   const tempCtx = tempCanvas.getContext("2d");
-  //   tempCanvas.width = targetWidth;
-  //   tempCanvas.height = targetHeight;
-  //   // 배경색 설정
-  //   tempCtx.fillStyle = backgroundColor;
-  //   tempCtx.fillRect(0, 0, targetWidth, targetHeight);
-  //   tempCtx.drawImage(
-  //     originalCanvas,
-  //     0,
-  //     0,
-  //     originalCanvas.width,
-  //     originalCanvas.height,
-  //     0,
-  //     0,
-  //     targetWidth,
-  //     targetHeight
-  //   );
-  //   return tempCanvas.toDataURL("image/png");
-  // }
-
   const handleDoneClick = async () => {
     console.log("완료 버튼 클릭");
     console.log("------------------------");
@@ -549,78 +503,56 @@ const DrawModal = ({
           console.log("Value type:", typeof value); // value 타입 확인 (여기서 'string'으로 나와야 함)
           // pictureType과 응답 데이터의 특정 필드를 value로 추가
           console.log(disabledImages);
-          // setPictureRequestData((prevData) => [
-          //   ...prevData,
-          //   {
-          //     pictureType: content, // 이미지 타입 (예: HOUSE, TREE, MALE, FEMALE)
-          //     value: value || "", // 서버 응답 데이터에서 필요한 필드 (예: 값이 들어가야 할 필드)
-          //   },
-          // ]);
 
-                          // 업데이트 로직
-                          setPictureRequestData((prevData) => {
-                            const newData = [...prevData];
-                            const index = newData.findIndex(item => item.pictureType === content.toUpperCase());
-                            if (index !== -1) {
-                                newData[index] = {
-                                    pictureType: content.toUpperCase(),
-                                    value: data.value || "", // 적절한 데이터 필드 사용
-                                };
-                            } else {
-                                newData.push({
-                                    pictureType: content.toUpperCase(),
-                                    value: data.value || "",
-                                });
-                            }
-                            return newData;
-                        });
+          // 업데이트 로직
+          setPictureRequestData((prevData) => {
+            const newData = [...prevData];
+            const index = newData.findIndex(
+              (item) => item.pictureType === content.toUpperCase()
+            );
+            if (index !== -1) {
+              newData[index] = {
+                pictureType: content.toUpperCase(),
+                value: data.value || "", // 적절한 데이터 필드 사용
+              };
+            } else {
+              newData.push({
+                pictureType: content.toUpperCase(),
+                value: data.value || "",
+              });
+            }
+            return newData;
+          });
 
-  //         // 빈 값 또는 공백 문자열에 대한 처리
-  //         if (!value || value.trim() === "") {
-  //           console.log(`"${content}"의 인식 결과가 없습니다. 활성화 합니다.`);
-  //           setDisabledImages((prev) => ({ ...prev, [content]: false }));
-  //         } else {
-  //           console.log("Value:", value);
-  //           console.log(
-  //             `"${content}"의 인식 결과가 있습니다. 비활성화 합니다.`
-  //           );
-  //           setDisabledImages((prev) => ({ ...prev, [content]: true }));
-  //           console.log("======================");
-  //           console.log(disabledImages);
-  //           console.log("======================");
-  //         }
-  //       } else {
-  //         console.error("Recognition 요청 실패:", await response.text());
-  //       }
-  //     } catch (error) {
-  //       console.error("Recognition 요청 오류:", error.message);
-  //     }
+          // 인식 결과가 없을 경우의 처리
+          if (!data.value || data.value.trim() === "") {
+            console.log(
+              `"${content.toUpperCase()}"의 인식 결과가 없습니다. 활성화 합니다.`
+            );
+            setDisabledImages((prev) => ({
+              ...prev,
+              [content.toUpperCase()]: false,
+            }));
+          } else {
+            console.log("Value:", data.value);
+            console.log(
+              `"${content.toUpperCase()}"의 인식 결과가 있습니다. 비활성화 합니다.`
+            );
+            setDisabledImages((prev) => ({
+              ...prev,
+              [content.toUpperCase()]: true,
+            }));
+          }
+        } else {
+          console.error("Recognition 요청 실패:", await response.text());
+        }
+      } catch (error) {
+        console.error("Recognition 요청 오류:", error.message);
+      }
 
-  //     onClose(); // 모달 창 닫기
-  //     // setIsButtonEnabled(disabledImages[ContentType.HOUSE] &disabledImages[ContentType.TREE] &disabledImages[ContentType.MALE] &disabledImages[ContentType.FEMALE] )
-  //     console.log(content.toUpperCase());
-  //   }
-  // };
-
-  // 인식 결과가 없을 경우의 처리
-  if (!data.value || data.value.trim() === "") {
-    console.log(`"${content.toUpperCase()}"의 인식 결과가 없습니다. 활성화 합니다.`);
-    setDisabledImages((prev) => ({ ...prev, [content.toUpperCase()]: false }));
-} else {
-    console.log("Value:", data.value);
-    console.log(`"${content.toUpperCase()}"의 인식 결과가 있습니다. 비활성화 합니다.`);
-    setDisabledImages((prev) => ({ ...prev, [content.toUpperCase()]: true }));
-}
-} else {
-console.error("Recognition 요청 실패:", await response.text());
-}
-} catch (error) {
-console.error("Recognition 요청 오류:", error.message);
-}
-
-onClose(); // 모달 창 닫기
-}
-};
+      onClose(); // 모달 창 닫기
+    }
+  };
 
   const ContentType = {
     HOUSE: "HOUSE",
@@ -720,8 +652,7 @@ onClose(); // 모달 창 닫기
                   </BStyledWrapper>
                 )}
                 {hoverGpencil && <DrawStyle />}
-
-                {/* BEraser 버튼 */}
+                {/* BEraser 버튼
                 {isButtonClicked != "Geraser" ? (
                   <WStyledWrapper>
                     <Geraser
@@ -736,15 +667,64 @@ onClose(); // 모달 창 닫기
                   </WStyledWrapper>
                 ) : (
                   <BStyledWrapper>
-                    <Peraser
+                  <Peraser
+                    onMouseEnter={() => setHoverGeraser(true)}
+                    onMouseLeave={() => setHoverGeraser(false)}
+                    onClick={() => handleClick("Geraser")}
+                  />
+                </BStyledWrapper>
+                )}
+                {hoverGeraser && <EraseAllStyle />} */}
+                {/* BEraser 버튼 */}
+                {isButtonClicked !== "Geraser" ? (
+                  <WStyledWrapper>
+                    <Geraser
                       onMouseEnter={() => setHoverGeraser(true)}
+                      onMouseLeave={() => setHoverGeraser(false)}
+                      onClick={() => {
+                        handleClick("Geraser");
+                        handleColorChange("white");
+                        changePenSize(maxPenSize);
+                      }}
+                    />
+                  </WStyledWrapper>
+                ) : (
+                  <BStyledWrapper>
+                    <Peraser
+                      // onMouseEnter={() => setHoverGeraser(true)}
+                      onMouseEnter={() => setHoverGeraser(false)}
                       onMouseLeave={() => setHoverGeraser(false)}
                       onClick={() => handleClick("Geraser")}
                     />
                   </BStyledWrapper>
                 )}
                 {hoverGeraser && <EraseAllStyle />}
+                {showPencilFrame && (
+                  <PencilFrameContainer>
+                    <PencilFrameStyle />
+                    {!isSmallCircleToggled ? (
+                      <GsmallcircleStyle 
+                      onClick={handleSmallCircleClick}
+                       />
+                    ) : (
+                      <BsmallcircleStyle onClick={handleSmallCircleClick}
+                       />
+                    )}
 
+                    {!isMedCircleToggled ? (
+                      <GmedcircleStyle onClick={handleMedCircleClick} />
+                    ) : (
+                      <BmedcircleStyle onClick={handleMedCircleClick} />
+                    )}
+
+                    {!isBigCircleToggled ? (
+                      <GbigcircleStyle onClick={handleBigCircleClick} />
+                    ) : (
+                      <BbigcircleStyle onClick={handleBigCircleClick} />
+                    )}
+                  </PencilFrameContainer>
+                )}{" "}
+                {/* 조건부 렌더링 추가 */}
                 {/* BTrash 버튼 */}
                 {isButtonClicked != "Gtrash" ? (
                   <WStyledWrapper>
@@ -1044,9 +1024,65 @@ const EraseAllStyle = styled(EraseAll)`
   top: 3.5rem;
 `;
 
-const ErasePartStyle = styled(ErasePart)`
+const PencilFrameContainer = styled.div`
   position: absolute;
   z-index: 100; // 다른 요소들보다 높은 값
+  right: 0rem;
+  top: 0rem;
+`;
+
+const PencilFrameStyle = styled(PencilFrame)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 8rem; // 오른쪽으로부터 20px
+  top: -1.3rem;
+`;
+
+const GsmallcircleStyle = styled(Gsmallcircle)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 11.51rem; // 오른쪽으로부터 20px
+  top: 8rem;
+`;
+
+const BsmallcircleStyle = styled(Bsmallcircle)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 11.51rem; // 오른쪽으로부터 20px
+  top: 8rem;
+`;
+
+const GmedcircleStyle = styled(Gmedcircle)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 11.4rem; // 오른쪽으로부터 20px
+  top: 4.5rem;
+`;
+
+const BmedcircleStyle = styled(Bmedcircle)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 11.4rem; // 오른쪽으로부터 20px
+  top: 4.5rem;
+`;
+
+const GbigcircleStyle = styled(Gbigcircle)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 11.15rem; // 오른쪽으로부터 20px
+  top: 0.5rem;
+`;
+
+const BbigcircleStyle = styled(Bbigcircle)`
+  position: absolute;
+  z-index: 100; // 다른 요소들보다 높은 값
+  right: 11.15rem; // 오른쪽으로부터 20px
+  top: 0.5rem;
+`;
+
+const ErasePartStyle = styled(ErasePart)`
+  position: absolute;
+  z-index: 99; // 다른 요소들보다 높은 값
   right: 9rem; // 오른쪽으로부터 20px
   top: 7rem;
 `;
