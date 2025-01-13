@@ -245,4 +245,7 @@ const SectionKeyword = styled.p`
 const SectionText = styled.div`
   width: 85%;
   margin: 4% 0;
+  letter-spacing: 0.07rem; // 자간 조정
+  line-height: 150%;
+  white-space: pre-wrap; // 줄바꿈 및 공백 유지
 `;
