@@ -63,14 +63,30 @@ export default function Loading() {
   // const imageHeight = location?.state?.height;
   const { loadingImg } = location.state || {};
 
+  // 초기갑을 세션 스토리지에서 가져오기
+  const [image, setImage] = useState(sessionStorage.getItem("loadingImg") || "");
+  
   // 뒤로가기 || 새로고침 누르면 이미지 날아감 -> 세션 스토리지에 저장하기
   useEffect(() => {
-    console.log('대표 이미지: ', loadingImg);
     if (loadingImg) {
-      sessionStorage.removeItem('loadingImg'); // 기존 이미지 삭제
-      sessionStorage.setItem('loadingImg', loadingImg); // 새로운 이미지 저장
-    }
-  }, []);
+        sessionStorage.setItem("loadingImg", loadingImg); // 새로운 이미지 저장
+        setImage(loadingImg); // 상태 업데이트
+      } else {
+        // 만약 loadingImg가 없으면 세션에 저장된 값을 유지
+        const storedImage = sessionStorage.getItem("loadingImg");
+        if (storedImage) {
+          setImage(storedImage);
+        }
+      }
+  }, [loadingImg]); // loadingImg가 변경될 때 실행
+
+  // useEffect(() => {
+  //   console.log('대표 이미지: ', loadingImg);
+  //   if (loadingImg) {
+  //     sessionStorage.removeItem('loadingImg'); // 기존 이미지 삭제
+  //     sessionStorage.setItem('loadingImg', loadingImg); // 새로운 이미지 저장
+  //   }
+  // }, []);
 
   // 세션 스토리지에서 이미지를 불러오기
   const storedImage = sessionStorage.getItem('loadingImg');
