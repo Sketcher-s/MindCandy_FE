@@ -517,10 +517,11 @@ display: flex;
 
 const StyledImage1 = styled.img`
 display: flex;
-width: 70%;
+width: 60%;
+max-width: 60%;
 position: absolute;
-top: 10%;
-left: 13%;
+top: 5%;
+left: 17%;
 //height: 80%;
   max-width: 80%;
   max-height: 80%;
@@ -546,7 +547,6 @@ const TotalImageContainer = styled.div`
   background-position: center;
   border-radius: 8px;
   position: relative;
-
   ${theme.media.mobile`
     max-height: 11.6rem;
   `}
