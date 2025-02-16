@@ -355,6 +355,8 @@ function InputPhoto() {
       console.error("검사 요청 오류:", error.message);
       setLoadingStatus(LoadingStatus.Fail);
       console.log("inputphoto에서 loading보내는 값: ", loadingStatusState);
+    } finally{
+      sessionStorage.removeItem("loadingImg"); // loading 세션에 저장했던 이미지 삭제하기
     }
   };
 

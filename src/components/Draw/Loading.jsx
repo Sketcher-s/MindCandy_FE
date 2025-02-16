@@ -75,7 +75,11 @@ export default function Loading() {
         // 만약 loadingImg가 없으면 세션에 저장된 값을 유지
         const storedImage = sessionStorage.getItem("loadingImg");
         if (storedImage) {
+          console.log("세션에 저장된 값: ", storedImage);
           setImage(storedImage);
+        }else{
+          console.log("잘못된 접근 - 검사하기 페이지로 이동");
+          navigate("/preparePage");
         }
       }
   }, [loadingImg]); // loadingImg가 변경될 때 실행

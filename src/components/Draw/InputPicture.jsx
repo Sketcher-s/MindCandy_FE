@@ -291,6 +291,8 @@ const handleRecognitionResponse = (data, pictureType, base64Images) => {
       console.error("검사 요청 오류:", error.message);
       setLoadingStatus(LoadingStatus.Fail);
       console.log("inputpicture에서 loading보내는 값: ", loadingStatusState);
+    } finally{
+      sessionStorage.removeItem("loadingImg"); // loading 세션에 저장했던 이미지 삭제하기
     }
   };
 
@@ -563,7 +565,7 @@ const SubText = styled.text`
   font-size: 0.875; //14px;
   font-style: normal;
   font-weight: 700;
-  line-height: 1.313rem /* 21px */
+  line-height: 1.313rem; /* 21px */
   margin-bottom: 0.625rem;
   padding-bottom: 0.625rem;
 
