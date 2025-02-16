@@ -8,15 +8,29 @@ import { LoginState } from "../../recoil/recoilState";
 import PropTypes from "prop-types";
 import { ReactComponent as Photochecktrue } from "../../assets/Draw/photochecktrue.svg";
 import { ReactComponent as Photocheckfalse } from "../../assets/Draw/photocheckfalse.svg";
+import Modal from "../Modal";
+import { useSetRecoilState } from "recoil";
+import { loadingStatusState } from "../../recoil/recoilState";
+
 // imgFile props에 대한 유효성 검사를 추가
 InputPhoto.propTypes = {
   // imgFile은 File 객체로 전달되어야 함
   imgFile: PropTypes.instanceOf(File),
 };
 
+// loading 상태에 대해서 상위 컴포넌트에서 loading 페이지로 넘겨줘야 함
+// 성공했을 때는 navigate로 result 페이지로 이동하면 되지만,
+// 실패했을 때는 isLoading의 값이 업데이트 될 수 없음..
+// recoil로 전역적 상태관리를 해야함
+const LoadingStatus = {
+  Loading: "Loading",
+  Fail: "Fail"
+};  
+
 function InputPhoto() {
   //fileupload에서 받은 데이터를 다시 넣기 위한 부분
   const [pictureRequestData, setPictureRequestData] = useState([]);
+  const setLoadingStatus = useSetRecoilState(loadingStatusState);
 
   //페이지 이동 부분
   const Navigate = useNavigate();
@@ -64,7 +78,7 @@ function InputPhoto() {
   }, []);
 
   const [jwtToken, setjwtToken] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  //const [isLoading, setIsLoading] = useState(false);
 
   // 버튼 활성화 상태를 관리할 useState 추가
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
@@ -171,13 +185,31 @@ function InputPhoto() {
         console.log("Value type:", typeof value); // value 타입 확인 (여기서 'string'으로 나와야 함)
 
         // pictureType과 응답 데이터의 특정 필드를 value로 추가
-        setPictureRequestData((prevData) => [
-          ...prevData,
-          {
-            pictureType: pictureType, // 이미지 타입 (예: HOUSE, TREE, MALE, FEMALE)
-            value: value || "", // 서버 응답 데이터에서 필요한 필드 (예: 값이 들어가야 할 필드)
-          },
-        ]);
+        // setPictureRequestData((prevData) => [
+        //   ...prevData,
+        //   {
+        //     pictureType: pictureType, // 이미지 타입 (예: HOUSE, TREE, MALE, FEMALE)
+        //     value: value || "", // 서버 응답 데이터에서 필요한 필드 (예: 값이 들어가야 할 필드)
+        //   },
+        // ]);
+
+        // 업데이트 로직
+        setPictureRequestData((prevData) => {
+          const newData = [...prevData];
+          const index = newData.findIndex(item => item.pictureType === pictureType);
+          if (index !== -1) {
+              newData[index] = {
+                  pictureType: pictureType,
+                  value: data.value || "", // 적절한 데이터 필드 사용
+              };
+          } else {
+              newData.push({
+                  pictureType: pictureType,
+                  value: data.value || "",
+              });
+          }
+          return newData;
+      });
 
         // 빈 값 또는 공백 문자열에 대한 처리
         if (!value || value.trim() === "") {
@@ -200,8 +232,6 @@ function InputPhoto() {
       }
     } catch (error) {
       console.error(`파일 업로드 오류 (${pictureType}):`, error.message);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -266,7 +296,8 @@ function InputPhoto() {
       return;
     }
 
-    setIsLoading(true); //로딩 시작
+    //setIsLoading(true); //로딩 시작
+    
     const formData = new FormData();
 
     // FormData에 각 파일을 개별적으로 추가
@@ -306,6 +337,7 @@ function InputPhoto() {
           body: formData, // FormData 전송
         }
       );
+      setLoadingStatus(LoadingStatus.Loading); // 로딩중..
 
       if (response.ok) {
         const data = await response.json();
@@ -317,11 +349,12 @@ function InputPhoto() {
         });
       } else {
         console.error("검사 요청 실패:", await response.text());
+        setLoadingStatus(LoadingStatus.Fail);
       }
     } catch (error) {
       console.error("검사 요청 오류:", error.message);
-    } finally {
-      setIsLoading(false);
+      setLoadingStatus(LoadingStatus.Fail);
+      console.log("inputphoto에서 loading보내는 값: ", loadingStatusState);
     }
   };
 
@@ -338,9 +371,12 @@ function InputPhoto() {
 
   const handleDoneClick = () => {
     const state = Navigate?.state || {}; // state에서 imageData 가져오기
+    // loading 페이지로 집 그림 넘기기
+    //const houseImg = imageFiles.TREE;
     const { imageData } = state;
-    console.log("완료 버튼 클릭");
-    Navigate("/loading", { state: { imageData } });
+    const loadingImg = imagePreviews.HOUSE;
+    console.log("완료 버튼 클릭, 대표 이미지 값: ", loadingImg);
+    Navigate("/loading", { state: { loadingImg } });
     handleSubmit(imageData); // 서버로 이미지 전송
   };
 
@@ -367,11 +403,10 @@ function InputPhoto() {
 
   return (
     <OuterContainer>
-      {isLoading && (
-        <>
-          <Loading />
-        </>
-      )}
+      {loadingStatusState === LoadingStatus.Loading &&
+        <Loading />
+      }
+      
       <InnerContainer>
         <InnerWrapper>
           <OneBox>

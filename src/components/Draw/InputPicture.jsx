@@ -9,9 +9,21 @@ import { LoginState } from "../../recoil/recoilState";
 import DrawModal from "./DrawModal"; // 위에서 만든 모달 컴포넌트를 import
 import { ReactComponent as Photochecktrue } from "../../assets/Draw/photochecktrue.svg";
 import { ReactComponent as Photocheckfalse } from "../../assets/Draw/photocheckfalse.svg";
+import { useSetRecoilState } from "recoil";
+import { loadingStatusState } from "../../recoil/recoilState";
+
+// loading 상태에 대해서 상위 컴포넌트에서 loading 페이지로 넘겨줘야 함
+// 성공했을 때는 navigate로 result 페이지로 이동하면 되지만,
+// 실패했을 때는 isLoading의 값이 업데이트 될 수 없음..
+// recoil로 전역적 상태관리를 해야함
+const LoadingStatus = {
+  Loading: "Loading",
+  Fail: "Fail"
+}; 
 
 function InputPicture() {
   const Navigate = useNavigate();
+  const setLoadingStatus = useSetRecoilState(loadingStatusState);
 
   // 로그인 상태
   const [isLoggedIn, setIsLoggedIn] = useRecoilState(LoginState);
@@ -107,11 +119,50 @@ function InputPicture() {
   const [isButtonEnabled, setIsButtonEnabled] = useState(false);
 
   // Recognition에서 받은 파일 데이터를 저장하는 함수
-  const handleRecognitionResponse = (data, pictureType, base64Images) => {
-    console.log("콘솔에 base64 이미지 출력:", base64Images);
-    console.log("blob 데이터: ", data);
-    console.log(pictureType);
+  // const handleRecognitionResponse = (data, pictureType, base64Images) => {
+  //   console.log("콘솔에 base64 이미지 출력:", base64Images);
+  //   console.log("blob 데이터: ", data);
+  //   console.log(pictureType);
 
+  //   const base64Data = base64Images.split(",")[1]; // "data:image/png;base64," 부분 제거
+  //   const imageBlob = base64ToBlob(base64Data); // Base64 데이터를 Blob으로 변환
+  //   const file = new File([imageBlob], `${pictureType}.png`, {
+  //     type: "image/png",
+  //   });
+  //   console.log("blob 파일 객체로 변환: ", file);
+
+  //   setImageFiles((prevFiles) => ({
+  //     ...prevFiles,
+  //     [pictureType]: file,
+  //   }));
+
+  //   // 파일을 URL로 변환하여 미리보기 URL 생성
+  //   const fileUrl = URL.createObjectURL(file);
+  //   setPreviewUrls((prev) => ({
+  //     ...prev,
+  //     [pictureType]: fileUrl,
+  //   }));
+
+  //   setImagePreviews((prev) => ({
+  //     ...prev,
+  //     [pictureType]: fileUrl, // 그림 데이터를 미리보기 상태에 저장
+  //   }));
+
+  //   // 추가된 부분: pictureRequestData 업데이트
+  //   setPictureRequestData((prevData) => [
+  //     ...prevData,
+  //     { pictureType, value: data.value }, // 'someValue'는 실제 데이터에 맞게 변경
+  //   ]);
+  // };
+
+
+// Recognition에서 받은 파일 데이터를 저장하는 함수
+const handleRecognitionResponse = (data, pictureType, base64Images) => {
+  console.log("콘솔에 base64 이미지 출력:", base64Images);
+  console.log("blob 데이터: ", data);
+  console.log(pictureType);
+
+  if (data.value) { // data.value가 유효한 경우에만 처리
     const base64Data = base64Images.split(",")[1]; // "data:image/png;base64," 부분 제거
     const imageBlob = base64ToBlob(base64Data); // Base64 데이터를 Blob으로 변환
     const file = new File([imageBlob], `${pictureType}.png`, {
@@ -138,10 +189,15 @@ function InputPicture() {
 
     // 추가된 부분: pictureRequestData 업데이트
     setPictureRequestData((prevData) => [
-      ...prevData,
-      { pictureType, value: data.value }, // 'someValue'는 실제 데이터에 맞게 변경
+      ...prevData.filter(item => item.pictureType !== pictureType),
+      { pictureType, value: data.value },
     ]);
-  };
+  } else {
+    console.log(`"${pictureType}"의 value가 유효하지 않습니다.`);
+  }
+};
+
+
 
   // 모든 이미지 파일을 모아서 배열로 서버로 전송하는 함수
   const handleSubmit = async () => {
@@ -217,6 +273,8 @@ function InputPicture() {
         }
       );
 
+      setLoadingStatus(LoadingStatus.Loading); // 로딩중..
+
       if (response.ok) {
         const data = await response.json();
         console.log("검사 요청 성공:", data);
@@ -227,11 +285,12 @@ function InputPicture() {
         });
       } else {
         console.error("검사 요청 실패:", await response.text());
+        setLoadingStatus(LoadingStatus.Fail);
       }
     } catch (error) {
       console.error("검사 요청 오류:", error.message);
-    } finally {
-      setIsLoading(false);
+      setLoadingStatus(LoadingStatus.Fail);
+      console.log("inputpicture에서 loading보내는 값: ", loadingStatusState);
     }
   };
 
@@ -240,7 +299,8 @@ function InputPicture() {
     const { imageData } = state;
     console.log(imageData);
     console.log("완료 버튼 클릭");
-    Navigate("/loading", { state: { imageData } });
+    const loadingImg = imagePreviews.HOUSE;
+    Navigate("/loading", { state: { loadingImg } });
     handleSubmit(imageData); // 서버로 이미지 전송
   };
 
@@ -253,11 +313,7 @@ function InputPicture() {
 
   return (
     <OuterContainer>
-      {isLoading && (
-        <>
-          <Loading />
-        </>
-      )}
+      {loadingStatusState === LoadingStatus.Loading && <Loading />}
       <InnerContainer>
         <InnerWrapper>
           <OneBox>

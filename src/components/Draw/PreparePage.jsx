@@ -170,6 +170,8 @@ const TextContainer = styled.div`
   gap: 0.6875rem; //14px;
   display: inline-flex;
 
+  margin-top: 0.1rem;
+
   ${theme.media.mobile`
   `}
 `;

@@ -458,7 +458,8 @@ const DrawingSection = styled.div`
 `;
 const TitleSection = styled.div`
   display: flex;
-  width: 100%;
+  width: 85%;
+  margin-top: 1rem;
   ${theme.media.mobile`  
     margin-top: 1rem;
   `}
@@ -518,7 +519,7 @@ const StyledImage1 = styled.img`
 display: flex;
 width: 70%;
 position: absolute;
-top: 17%;
+top: 10%;
 left: 13%;
 //height: 80%;
   max-width: 80%;
